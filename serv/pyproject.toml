@@ -1,0 +1,10 @@
+[project]
+name = "sprobbler"
+dependencies = [
+    "flask",
+    "flask-dance",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
