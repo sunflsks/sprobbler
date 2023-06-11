@@ -1,5 +1,6 @@
 [project]
 name = "sprobbler"
+version = "0.1"
 dependencies = [
     "flask",
     "flask-dance",
