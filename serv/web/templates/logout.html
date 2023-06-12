@@ -1,0 +1,10 @@
+{% block header %}
+<h1>{% block title %}Register{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form action="{{ redirect_url }}">
+    <label for="logout">Logged in as {{ login_name }}</label>
+    <button name="login" id="login">Log Out</button>
+</form>
+{% endblock %}
