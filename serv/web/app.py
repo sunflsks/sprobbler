@@ -1,4 +1,8 @@
+import os
 import flask
+from flask import g
+
+from db import SpotifyConfig
 from .config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify
@@ -17,17 +21,26 @@ def create_app() -> flask.Flask:
     @app.route("/")
     def root():
         if not spotify.authorized:
-            print(flask.url_for("spotify.login"))
             return flask.render_template(
-                "index.html",
+                "login.html",
                 redirect_url=flask.url_for("spotify.login"),
             )
         resp = spotify.get("/v1/me")
+        assert resp.ok
         return flask.render_template(
             "logout.html",
-            redirect_url="https://google.com",
+            redirect_url=flask.url_for("logout"),
             login_name=resp.json()["display_name"],
         )
+
+    # it doesn't look like spotify has an API to revoke tokens, so we'll just delete it here and
+    # wait for it to expire on their end (they have a pretty short lifetime, this *should* be fine)
+    @app.route("/logout")
+    def logout():
+        if not spotify.authorized:
+            return flask.redirect(flask.url_for("root"))
+        SpotifyConfig.delete_access_token()
+        return "Logged out"
 
     return app
 

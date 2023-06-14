@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+from db import init_db
 from web.app import create_app
 
 print("ONLY FOR DEVELOPMENT USE!!! DANGEROUS ENV VARS SET !!!!")
@@ -8,5 +9,6 @@ print("ONLY FOR DEVELOPMENT USE!!! DANGEROUS ENV VARS SET !!!!")
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "True"
 
 if __name__ == "__main__":
+    init_db()
     app = create_app()
-    app.run()
+    app.run(debug=True)
