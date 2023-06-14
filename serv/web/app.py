@@ -3,7 +3,7 @@ import flask
 from flask import g
 
 from db import SpotifyConfig
-from .config import Config
+from config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify
 
@@ -13,7 +13,7 @@ def create_app() -> flask.Flask:
         __name__, instance_relative_config=True, template_folder="./templates"
     )
     app.config.from_mapping(
-        SECRET_KEY=Config.secret_key(), DATABASE=Config.database_location()
+        SECRET_KEY=Config().secret_key(), DATABASE=Config().database_location()
     )
 
     app.register_blueprint(login.bp, url_prefix="/login")

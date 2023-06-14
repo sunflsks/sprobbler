@@ -1,13 +1,13 @@
 import os, json
 
 from db import SpotifyConfig
-from .config import Config
+from config import Config
 from flask import Flask, redirect, url_for
 
 from flask_dance.consumer.storage.sqla import BaseStorage
 from flask_dance.contrib.spotify import make_spotify_blueprint, spotify
 
-client_id, secret = Config.spotify_info()
+client_id, secret = Config().spotify_info()
 
 
 class PeeWeeSQLStorage(BaseStorage):

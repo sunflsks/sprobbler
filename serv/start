@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 
 import os
-from db import init_db
-from web.app import create_app
+from config import Config
 
 print("ONLY FOR DEVELOPMENT USE!!! DANGEROUS ENV VARS SET !!!!")
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "True"
+os.environ["SPROBBLER_DEBUG"] = "YES"
 
 if __name__ == "__main__":
-    init_db()
+    if not Config().validate_config():
+        exit(1)
+
+    from db import init_db_if_not_exists
+    from web.app import create_app
+
+    init_db_if_not_exists()
     app = create_app()
     app.run(debug=True)
