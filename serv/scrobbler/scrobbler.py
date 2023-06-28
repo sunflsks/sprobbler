@@ -18,6 +18,8 @@ after = int(time.time())
 
 # will cycle
 def scrobble():
+    global after
+
     params = {"limit": SPOTIFY_RECENTLY_PLAYED_LIMIT, "after": after}
     resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
 
