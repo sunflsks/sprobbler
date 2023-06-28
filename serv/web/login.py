@@ -9,6 +9,8 @@ from flask_dance.contrib.spotify import make_spotify_blueprint, spotify
 
 client_id, secret = Config().spotify_info()
 
+SCOPES = ["user-read-recently-played", "user-top-read"]
+
 
 class PeeWeeSQLStorage(BaseStorage):
     def get(self, blueprint):
@@ -25,5 +27,8 @@ class PeeWeeSQLStorage(BaseStorage):
 
 
 bp = make_spotify_blueprint(
-    client_id=client_id, client_secret=secret, storage=PeeWeeSQLStorage()
+    client_id=client_id,
+    client_secret=secret,
+    storage=PeeWeeSQLStorage(),
+    scope=SCOPES,
 )
