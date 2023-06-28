@@ -1,14 +1,37 @@
 # going off the contents of an Entry in the spotify API docs; maybe not very ideal but not horrible
 
-# API return values -
+# API return values (that i need) -
 # track
 #   album
 #       album_type: type of album (string, can either be album single or compilation)
-#       total_tracks : total # of tracks in album (int)
+#   artists [array]
+#       name: name of artist (string)
+#   explicit: whether explicit (bool)
+#   name: name of track (string)
+#   popularity: popularity of track (int)
 # played_at: timestamp (string, iso8601 UTC)
+
+from datetime import datetime
+
+
+class Album:
+    def __init__(self, album_dict):
+        self.album_type = album_dict["album_type"]
+
+
+class Track:
+    def __init__(self, track_dict):
+        self.album = Album(track_dict["album"])
+        self.artists = [artist["name"] for artist in track_dict["artists"]]
+        self.explicit = track_dict["explicit"]
+        self.name = track_dict["name"]
+        self.popularity = track_dict["popularity"]
 
 
 class Song:
     def __init__(self, entry):
-        self.track = entry["track"]["name"]
-        self.played_at = entry["played_at"]
+        self.track = Track(entry["track"])
+        self.played_at = datetime.fromisoformat(entry["played_at"])
+
+    def insert_into_database(self):
+        pass

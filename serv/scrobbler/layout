@@ -4,7 +4,6 @@ setup signal handler to force downloading from server after login, etc
 set after token to current date
 
 every 120 seconds:
-    check if token, if not print error and pass
     GET spotify api last 50 songs from after token
     for each entry:
         put into database

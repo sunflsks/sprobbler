@@ -33,8 +33,9 @@ def scrobble():
 
     for entry in response_dict["items"]:
         song = Song(entry)
-        print(f"Song {song.track} played at {song.played_at}")
+        print(f"Song {song.track.name} played at {song.played_at}")
 
+    after = int(time.time())
     Timer(SCROBBLER_INTERVAL, scrobble).start()
 
 
