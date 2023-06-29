@@ -1,8 +1,19 @@
 from doctest import debug
+from os import name
 import config
 from utils import debugprint
-from peewee import *
-from playhouse.sqlite_ext import *
+from peewee import (
+    SqliteDatabase,
+    Model,
+    CharField,
+    ForeignKeyField,
+    BooleanField,
+    IntegerField,
+    DateTimeField,
+    Model,
+    DoesNotExist,
+)
+from playhouse.sqlite_ext import JSONField
 from scrobbler import song
 
 database = SqliteDatabase(config.Config().database_location())
@@ -25,7 +36,7 @@ class SpotifyConfig(BaseModel):
             try:
                 ret = SpotifyConfig.get(SpotifyConfig.name == "main")
                 debugprint("token was found, returning")
-            except SpotifyConfig.DoesNotExist:
+            except DoesNotExist:
                 debugprint("token not found, returning None")
                 pass
         return ret
@@ -43,7 +54,34 @@ class SpotifyConfig(BaseModel):
             debugprint("deleting access token")
             SpotifyConfig.delete().where(SpotifyConfig.name == "main").execute()
 
-class Song(BaseModel):
+
+class Album(BaseModel):
+    name = CharField()
+    album_type = CharField()
+    id = CharField(primary_key=True)
+
+
+class Artist(BaseModel):
+    name = CharField()
+    id = CharField(primary_key=True)
+
+
+class Track(BaseModel):
+    name = CharField()
+    album = ForeignKeyField(Album, to_field="id")
+    explicit = BooleanField()
+    popularity = IntegerField()
+    id = CharField(primary_key=True)
+
+
+class ArtistTrack(BaseModel):
+    artist = ForeignKeyField(Artist, to_field="id")
+    track = ForeignKeyField(Track, to_field="id")
+
+
+class Scrobble(BaseModel):
+    track = ForeignKeyField(Track, to_field="id")
+    played_at = DateTimeField()
 
 
 def init_db_if_not_exists():
@@ -52,7 +90,4 @@ def init_db_if_not_exists():
             print(
                 f"DB not found, initializing at {config.Config().database_location()}"
             )
-            database.create_tables([SpotifyConfig])
-
-def insert_song_into_db(song):
-    pass
+            database.create_tables([SpotifyConfig, Track])

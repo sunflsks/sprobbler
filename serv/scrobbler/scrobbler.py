@@ -6,7 +6,7 @@ from urllib import response
 from web.login import bp
 from threading import Timer, Lock
 from scrobbler.song import Song
-from utils import debugprint
+from utils import debugprint, repeat
 
 # it seems a song is only registered when fully, 100 percent played; partial plays do not count
 # as a recently played song. however, if fast forwarded to the end it DOES count.
@@ -20,6 +20,7 @@ after = time.time_ns() // 1000000  # convert to ms
 
 
 # will cycle
+@repeat(SCROBBLER_INTERVAL)
 def scrobble():
     global after
 
@@ -43,7 +44,6 @@ def scrobble():
         print(f"Song {song.track.name} played at {song.played_at}")
 
     after = time.time_ns() // 1000000  # convert to ms
-    Timer(SCROBBLER_INTERVAL, scrobble).start()
 
 
 def start_scrobbler():
