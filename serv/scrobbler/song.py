@@ -17,15 +17,23 @@ from datetime import datetime
 class Album:
     def __init__(self, album_dict):
         self.album_type = album_dict["album_type"]
+        self.id = album_dict["id"]
+
+
+class Artist:
+    def __init__(self, artist_dict):
+        self.name = artist_dict["name"]
+        self.id = artist_dict["id"]
 
 
 class Track:
     def __init__(self, track_dict):
         self.album = Album(track_dict["album"])
-        self.artists = [artist["name"] for artist in track_dict["artists"]]
+        self.artists = [Artist(artist) for artist in track_dict["artists"]]
         self.explicit = track_dict["explicit"]
         self.name = track_dict["name"]
         self.popularity = track_dict["popularity"]
+        self.id = track_dict["id"]
 
 
 class Song:

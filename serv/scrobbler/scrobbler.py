@@ -8,17 +8,22 @@ from threading import Timer, Lock
 from scrobbler.song import Song
 from utils import debugprint
 
+# it seems a song is only registered when fully, 100 percent played; partial plays do not count
+# as a recently played song. however, if fast forwarded to the end it DOES count.
+
 # how many seconds between each call to api
 SCROBBLER_INTERVAL = 120
 SPOTIFY_RECENTLY_PLAYED_URL = "/v1/me/player/recently-played"
 SPOTIFY_RECENTLY_PLAYED_LIMIT = 50  # maximum value, who knows maybe the user is crazy
 
-after = int(time.time())
+after = time.time_ns() // 1000000  # convert to ms
 
 
 # will cycle
 def scrobble():
     global after
+
+    print(f"SCROBBLER: starting @ {after}")
 
     params = {"limit": SPOTIFY_RECENTLY_PLAYED_LIMIT, "after": after}
     resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
@@ -37,7 +42,7 @@ def scrobble():
         song = Song(entry)
         print(f"Song {song.track.name} played at {song.played_at}")
 
-    after = int(time.time())
+    after = time.time_ns() // 1000000  # convert to ms
     Timer(SCROBBLER_INTERVAL, scrobble).start()
 
 

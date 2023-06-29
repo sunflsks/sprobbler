@@ -3,6 +3,7 @@ import config
 from utils import debugprint
 from peewee import *
 from playhouse.sqlite_ext import *
+from scrobbler import song
 
 database = SqliteDatabase(config.Config().database_location())
 
@@ -42,6 +43,8 @@ class SpotifyConfig(BaseModel):
             debugprint("deleting access token")
             SpotifyConfig.delete().where(SpotifyConfig.name == "main").execute()
 
+class Song(BaseModel):
+
 
 def init_db_if_not_exists():
     with database:
@@ -50,3 +53,6 @@ def init_db_if_not_exists():
                 f"DB not found, initializing at {config.Config().database_location()}"
             )
             database.create_tables([SpotifyConfig])
+
+def insert_song_into_db(song):
+    pass
