@@ -37,7 +37,7 @@ class Config:
         client_secret = confdict["config"]["client_secret"]
         return (client_id, client_secret)
 
-    def validate_config(self):
+    def validate_config(self) -> bool:
         # we will just immediately skip to trying to read the config; if any exception is thrown, we'll catch it and return
         # it.
         try:
@@ -50,5 +50,5 @@ class Config:
             print(f"Could not load config: {repr(ex)}")
             return False
 
-    def debug_enabled(self):
+    def debug_enabled(self) -> bool:
         return os.environ["SPROBBLER_DEBUG"] == "YES"

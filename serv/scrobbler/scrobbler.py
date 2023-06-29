@@ -22,7 +22,7 @@ after = time.time_ns() // 1000000  # convert to ms
 
 # will cycle
 @repeat(SCROBBLER_INTERVAL)
-def scrobble():
+def scrobble() -> bool:
     global after
 
     print(f"SCROBBLER: starting @ {after}")
@@ -41,13 +41,13 @@ def scrobble():
         return False
 
     for entry in response_dict["items"]:
-        print("here 999")
         insert_scrobble_into_db(Scrobble(entry))
 
     after = time.time_ns() // 1000000  # convert to ms
+    return True
 
 
-def start_scrobbler():
+def start_scrobbler() -> bool | None:
     # check if auth token is available
     if not bp.session.authorized:
         debugprint(
