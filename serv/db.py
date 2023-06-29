@@ -90,4 +90,6 @@ def init_db_if_not_exists():
             print(
                 f"DB not found, initializing at {config.Config().database_location()}"
             )
-            database.create_tables([SpotifyConfig, Track])
+            database.create_tables(
+                [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
+            )
