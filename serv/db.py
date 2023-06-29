@@ -1,5 +1,6 @@
 from doctest import debug
 from os import name
+from re import T
 import config
 from utils.utils import debugprint
 from peewee import (
@@ -14,7 +15,7 @@ from peewee import (
     DoesNotExist,
 )
 from playhouse.sqlite_ext import JSONField
-from utils.song import Song
+from utils.scrobble import Scrobble as ScrobbleRepresentation
 
 database = SqliteDatabase(config.Config().database_location())
 
@@ -93,3 +94,32 @@ def init_db_if_not_exists():
             database.create_tables(
                 [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
             )
+
+
+def insert_scrobble_into_db(scrobble: ScrobbleRepresentation):
+    with database:
+        # first insert the album into the database, if it does not already exist
+        Album.insert(
+            name=scrobble.track.album.name,
+            album_type=scrobble.track.album.album_type,
+            id=scrobble.track.album.id,
+        ).on_conflict_ignore().execute()
+
+        # then insert the artists into the database, if they do not already exist, as well as set up artist-track relationships
+        for artist in scrobble.track.artists:
+            Artist.insert(name=artist.name, id=artist.id).on_conflict_ignore().execute()
+            ArtistTrack.insert(
+                artist=artist.id, track=scrobble.track.id
+            ).on_conflict_ignore().execute()
+
+        # then insert the track into the database, if it does not already exist
+        Track.insert(
+            name=scrobble.track.name,
+            album=scrobble.track.album.id,
+            explicit=scrobble.track.explicit,
+            popularity=scrobble.track.popularity,
+            id=scrobble.track.id,
+        ).on_conflict_ignore().execute()
+
+        # finally, insert the scrobble into the database
+        Scrobble.insert(track=scrobble.track.id, played_at=scrobble.played_at).execute()

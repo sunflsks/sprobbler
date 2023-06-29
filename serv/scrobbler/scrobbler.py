@@ -5,8 +5,9 @@ import json
 from urllib import response
 from web.login import bp
 from threading import Timer, Lock
-from utils.song import Song
+from utils.scrobble import Scrobble
 from utils.utils import debugprint, repeat
+from db import insert_scrobble_into_db
 
 # it seems a song is only registered when fully, 100 percent played; partial plays do not count
 # as a recently played song. however, if fast forwarded to the end it DOES count.
@@ -40,8 +41,8 @@ def scrobble():
         return False
 
     for entry in response_dict["items"]:
-        song = Song(entry)
-        print(f"Song {song.track.name} played at {song.played_at}")
+        print("here 999")
+        insert_scrobble_into_db(Scrobble(entry))
 
     after = time.time_ns() // 1000000  # convert to ms
 

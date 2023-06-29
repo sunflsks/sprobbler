@@ -18,6 +18,7 @@ class Album:
     def __init__(self, album_dict):
         self.album_type = album_dict["album_type"]
         self.id = album_dict["id"]
+        self.name = album_dict["name"]
 
 
 class Artist:
@@ -36,10 +37,7 @@ class Track:
         self.id = track_dict["id"]
 
 
-class Song:
+class Scrobble:
     def __init__(self, entry):
         self.track = Track(entry["track"])
         self.played_at = datetime.fromisoformat(entry["played_at"])
-
-    def insert_into_database(self):
-        pass
