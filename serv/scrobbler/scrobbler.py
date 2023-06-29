@@ -5,8 +5,8 @@ import json
 from urllib import response
 from web.login import bp
 from threading import Timer, Lock
-from scrobbler.song import Song
-from utils import debugprint, repeat
+from utils.song import Song
+from utils.utils import debugprint, repeat
 
 # it seems a song is only registered when fully, 100 percent played; partial plays do not count
 # as a recently played song. however, if fast forwarded to the end it DOES count.

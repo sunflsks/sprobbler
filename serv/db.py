@@ -1,7 +1,7 @@
 from doctest import debug
 from os import name
 import config
-from utils import debugprint
+from utils.utils import debugprint
 from peewee import (
     SqliteDatabase,
     Model,
@@ -14,7 +14,7 @@ from peewee import (
     DoesNotExist,
 )
 from playhouse.sqlite_ext import JSONField
-from scrobbler import song
+from utils.song import Song
 
 database = SqliteDatabase(config.Config().database_location())
 
