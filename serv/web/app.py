@@ -20,12 +20,12 @@ def create_app() -> flask.Flask:
 
     @app.route("/")
     def root():
-        if not spotify.authorized:
+        if not spotify.authorized:  # type: ignore
             return flask.render_template(
                 "login.html",
                 redirect_url=flask.url_for("spotify.login"),
             )
-        resp = spotify.get("/v1/me")
+        resp = spotify.get("/v1/me")  # type: ignore
         assert resp.ok
         return flask.render_template(
             "logout.html",
@@ -37,7 +37,7 @@ def create_app() -> flask.Flask:
     # wait for it to expire on their end (they have a pretty short lifetime, this *should* be fine)
     @app.route("/logout")
     def logout():
-        if not spotify.authorized:
+        if not spotify.authorized:  # type: ignore
             return flask.redirect(flask.url_for("root"))
         SpotifyConfig.delete_access_token()
         return "Logged out"
