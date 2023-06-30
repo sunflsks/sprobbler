@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+from cli.cli import start_cli_interface
 from scrobbler.scrobbler import start_scrobbler
 from config import Config
 from threading import Thread
@@ -24,5 +25,7 @@ if __name__ == "__main__":
     from web.app import create_app
 
     init_db_if_not_exists()
+
     Thread(target=start_flask_server).start()
     Thread(target=start_scrobbler).start()
+    Thread(target=start_cli_interface).start()
