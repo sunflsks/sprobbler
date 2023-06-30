@@ -41,7 +41,11 @@ def scrobble() -> bool:
         return False
 
     for entry in response_dict["items"]:
-        insert_scrobble_into_db(Scrobble(entry))
+        scrobble = Scrobble(entry)
+        print(
+            f"SCROBBLER: found song {scrobble.track.name} played at {scrobble.played_at}"
+        )
+        insert_scrobble_into_db(scrobble)
 
     after = time.time_ns() // 1000000  # convert to ms
     return True
