@@ -8,8 +8,6 @@ import pathlib
 # DEFAULT_CONFIG_PATH="config.toml"
 
 DEFAULT_DB_PATH = "/tmp/sprobbler.sqlite"
-CLIENT_ID = "49b4dbcee202434aba5f0bf89245dab2"
-CLIENT_SECRET = "2d1aeebf903f4d48adc4b1fe44fb99f8"
 
 DEFAULT_CONFIG_PATH = pathlib.Path.home() / ".sprobblerconf.toml"
 
