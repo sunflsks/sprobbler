@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from doctest import debug
+from enum import unique
 from os import name
 from re import T
 import config
@@ -30,7 +31,7 @@ class BaseModel(Model):
 
 class SpotifyConfig(BaseModel):
     access_token = JSONField()
-    name = CharField()
+    name = CharField(unique=True)
 
     @staticmethod
     def get_access_token() -> SpotifyConfig | None:
@@ -49,7 +50,14 @@ class SpotifyConfig(BaseModel):
     def set_access_token(token) -> None:
         with database:
             debugprint("setting access token")
-            ret = SpotifyConfig.replace(name="main", access_token=token).execute()
+            ret = (
+                SpotifyConfig.insert(name="main", access_token=token)
+                .on_conflict(
+                    conflict_target=[SpotifyConfig.name],
+                    preserve=[SpotifyConfig.access_token],
+                )
+                .execute()
+            )
         return ret
 
     @staticmethod
