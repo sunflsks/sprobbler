@@ -3,6 +3,8 @@ import os
 import time
 import json
 from urllib import response
+
+import requests
 from web.login import bp
 from threading import Timer, Lock
 from utils.scrobble import Scrobble
@@ -28,7 +30,11 @@ def scrobble() -> bool:
     print(f"SCROBBLER: starting @ {after}")
 
     params = {"limit": SPOTIFY_RECENTLY_PLAYED_LIMIT, "after": after}
-    resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
+    try:
+        resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
+    except requests.exceptions.RequestException as err:
+        print("ERROR: Could not get recently played songs: {err}")
+        return False
 
     if resp.status_code != 200:
         debugprint(f"SCROBBLER: get was not successful: {resp}")
