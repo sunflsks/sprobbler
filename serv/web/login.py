@@ -32,3 +32,11 @@ bp = make_spotify_blueprint(
     storage=PeeWeeSQLStorage(),
     scope=SCOPES,
 )
+
+# un workaround para asegurarse de que el token se refresca cuando sea necesario, lo ideal seria
+# que make_spotify_blueprint lo haga automaticamente pero no lo hace :(((
+bp.auto_refresh_url = "https://accounts.spotify.com/api/token"
+bp.auto_refresh_kwargs = {
+    "client_id": client_id,
+    "client_secret": secret,
+}
