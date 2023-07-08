@@ -42,6 +42,20 @@ def create_app() -> flask.Flask:
         SpotifyConfig.delete_access_token()
         return "Logged out"
 
+    @app.route("/refresh")
+    def refresh():
+        if not spotify.authorized:  # type: ignore
+            return flask.redirect(flask.url_for("root"))
+
+        extra = {
+            "client_id": Config().spotify_info()[0],
+            "client_secret": Config().spotify_info()[1],
+        }
+
+        new_token = spotify.refresh_token(spotify.auto_refresh_url, **extra)  # type: ignore
+        SpotifyConfig.set_access_token(new_token)
+        return "Refreshed token"
+
     return app
 
 
