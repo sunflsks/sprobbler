@@ -7,4 +7,7 @@ def start_cli_interface() -> None:
     sleep(2)
     while True:
         command = input("sprobbler> ")
-        print("silly goose")
+        if command == "quit":
+            pass
+            # aun tengo que implementar un shutdown hook para que se detenga todo
+        print(command, flush=True)
