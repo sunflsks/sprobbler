@@ -1,6 +1,6 @@
 from typing import List
 
-from serv.scrobbler.scrobbler import scrobble
+from scrobbler.scrobbler import scrobble
 
 
 class PlayedAlbum:

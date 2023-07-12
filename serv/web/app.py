@@ -6,6 +6,7 @@ from db import SpotifyConfig
 from config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify
+from compiler.compiler_info import PlayInfo
 
 
 def create_app() -> flask.Flask:
@@ -55,6 +56,10 @@ def create_app() -> flask.Flask:
         new_token = spotify.refresh_token(spotify.auto_refresh_url, **extra)  # type: ignore
         SpotifyConfig.set_access_token(new_token)
         return "Refreshed token"
+
+    @app.route("/data")
+    def data():
+        return f"{PlayInfo.scrobble_count}"
 
     return app
 
