@@ -71,6 +71,7 @@ class Album(BaseModel):
     name = CharField()
     album_type = CharField()
     id = CharField(primary_key=True)
+    cover_image_url = CharField(null=True)
 
 
 class Artist(BaseModel):
@@ -116,6 +117,7 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 name=scrobble.track.album.name,
                 album_type=scrobble.track.album.album_type,
                 id=scrobble.track.album.id,
+                cover_image_url=scrobble.track.album.cover_image_url,
             ).on_conflict_ignore().execute()
 
             # then insert the artists into the database, if they do not already exist, as well as set up artist-track relationships

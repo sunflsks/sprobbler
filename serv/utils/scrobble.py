@@ -19,6 +19,9 @@ class Album:
         self.album_type = album_dict["album_type"]
         self.id = album_dict["id"]
         self.name = album_dict["name"]
+        self.cover_image_url = album_dict["images"][0][
+            "url"
+        ]  # automatically get the first image, which is the largest
 
 
 class Artist:
