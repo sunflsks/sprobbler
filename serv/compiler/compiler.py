@@ -4,11 +4,13 @@
 #
 #
 # FOR STARTERS !!!!!
-
-# Most Played Albums
-# Most Played Artists
-# Most Played Tracks
-# Number of Tracks Played
+# Global:
+# Top 10 Most Played Artists
+# Top 10 Most Played Albums
+# Top 10 Most Played Tracks
+# 10 Most Recent Scrobbles
+# Total Scrobbles
+# Total Listening Time
 
 from utils.utils import repeat, debugprint
 from compiler.compiler_info import *
@@ -24,14 +26,17 @@ def compile_scrobbles():
     debugprint("COMPILER: starting")
 
     with db.database:
-        PlayInfo.scrobble_count = db.Scrobble.select().count()
-        PlayInfo.track_count = db.Track.select().count()
+        GlobalPlayInfo.scrobble_count = db.Scrobble.select().count()
+        GlobalPlayInfo.track_count = db.Track.select().count()
+        GlobalPlayInfo.listening_time = (
+            db.Scrobble.select(fn.SUM(db.Track.duration_ms)).join(db.Track).scalar()
+        )
 
         track_function = fn.COUNT(db.Scrobble.track)
         artist_function = fn.COUNT(db.Artist.id)
         album_function = fn.COUNT(db.Album.id)
 
-        PlayInfo.most_played_tracks = [
+        GlobalPlayInfo.ten_most_played_tracks = [
             PlayedTrack(**track)
             for track in (
                 db.Scrobble.select(db.Track.name, track_function.alias("play_count"))
@@ -43,7 +48,7 @@ def compile_scrobbles():
             )
         ]
 
-        PlayInfo.most_played_artists = [
+        GlobalPlayInfo.ten_most_played_artists = [
             PlayedArtist(**artist)
             for artist in (
                 db.Scrobble.select(db.Artist.name, artist_function.alias("play_count"))
@@ -57,7 +62,7 @@ def compile_scrobbles():
             )
         ]
 
-        PlayInfo.most_played_albums = [
+        GlobalPlayInfo.ten_most_played_albums = [
             PlayedAlbum(**album)
             for album in (
                 db.Scrobble.select(db.Album.name, album_function.alias("play_count"))
@@ -65,6 +70,17 @@ def compile_scrobbles():
                 .join(db.Album)
                 .group_by(db.Album.id)
                 .order_by(album_function.desc())
+                .limit(10)
+                .dicts()
+            )
+        ]
+
+        GlobalPlayInfo.ten_most_recent_scrobbles = [
+            PlayedTrack(**track)
+            for track in (
+                db.Scrobble.select(db.Track.name, db.Scrobble.played_at)
+                .join(db.Track)
+                .order_by(db.Scrobble.played_at.desc())
                 .limit(10)
                 .dicts()
             )

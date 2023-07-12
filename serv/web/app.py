@@ -1,3 +1,4 @@
+import json
 import os
 import flask
 from flask import g
@@ -6,7 +7,7 @@ from db import SpotifyConfig
 from config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify
-from compiler.compiler_info import PlayInfo
+from compiler.compiler_info import GlobalPlayInfo
 
 
 def create_app() -> flask.Flask:
@@ -59,7 +60,7 @@ def create_app() -> flask.Flask:
 
     @app.route("/data")
     def data():
-        return f"{PlayInfo.scrobble_count}"
+        return json.dumps(GlobalPlayInfo.dict_representation())
 
     return app
 
