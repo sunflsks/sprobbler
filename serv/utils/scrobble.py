@@ -35,6 +35,7 @@ class Track:
         self.name = track_dict["name"]
         self.popularity = track_dict["popularity"]
         self.id = track_dict["id"]
+        self.duration_ms = track_dict["duration_ms"]
 
 
 class Scrobble:

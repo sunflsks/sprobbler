@@ -83,6 +83,7 @@ class Track(BaseModel):
     album = ForeignKeyField(Album, to_field="id")
     explicit = BooleanField()
     popularity = IntegerField()
+    duration_ms = IntegerField()
     id = CharField(primary_key=True)
 
 
@@ -133,6 +134,7 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 explicit=scrobble.track.explicit,
                 popularity=scrobble.track.popularity,
                 id=scrobble.track.id,
+                duration_ms=scrobble.track.duration_ms,
             ).on_conflict_ignore().execute()
 
             # finally, insert the scrobble into the database
