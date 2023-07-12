@@ -39,8 +39,13 @@ def compile_scrobbles():
         GlobalPlayInfo.ten_most_played_tracks = [
             PlayedTrack(**track)
             for track in (
-                db.Scrobble.select(db.Track.name, track_function.alias("play_count"))
+                db.Scrobble.select(
+                    db.Track.name,
+                    db.Album.cover_image_url,
+                    track_function.alias("play_count"),
+                )
                 .join(db.Track)
+                .join(db.Album)
                 .group_by(db.Track.name)
                 .order_by(track_function.desc())
                 .limit(10)
@@ -65,7 +70,11 @@ def compile_scrobbles():
         GlobalPlayInfo.ten_most_played_albums = [
             PlayedAlbum(**album)
             for album in (
-                db.Scrobble.select(db.Album.name, album_function.alias("play_count"))
+                db.Scrobble.select(
+                    db.Album.name,
+                    album_function.alias("play_count"),
+                    db.Album.cover_image_url,
+                )
                 .join(db.Track)
                 .join(db.Album)
                 .group_by(db.Album.id)
@@ -78,8 +87,11 @@ def compile_scrobbles():
         GlobalPlayInfo.ten_most_recent_scrobbles = [
             PlayedTrack(**track)
             for track in (
-                db.Scrobble.select(db.Track.name, db.Scrobble.played_at)
+                db.Scrobble.select(
+                    db.Track.name, db.Album.cover_image_url, db.Scrobble.played_at
+                )
                 .join(db.Track)
+                .join(db.Album)
                 .order_by(db.Scrobble.played_at.desc())
                 .limit(10)
                 .dicts()
