@@ -3,6 +3,7 @@
 import os
 from cli.cli import start_cli_interface
 from scrobbler.scrobbler import start_scrobbler
+from compiler.compiler import start_compiler
 from config import Config
 from threading import Thread
 
@@ -29,3 +30,4 @@ if __name__ == "__main__":
     Thread(target=start_flask_server).start()
     Thread(target=start_scrobbler).start()
     Thread(target=start_cli_interface).start()
+    Thread(target=start_compiler).start()
