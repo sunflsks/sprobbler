@@ -33,7 +33,7 @@ def scrobble() -> bool:
     try:
         resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
     except requests.exceptions.RequestException as err:
-        print("ERROR: Could not get recently played songs: {err}")
+        print(f"ERROR: Could not get recently played songs: {err}")
         return False
 
     if resp.status_code != 200:
