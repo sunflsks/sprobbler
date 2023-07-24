@@ -2,6 +2,7 @@ from doctest import debug
 import os
 import time
 import json
+from datetime import datetime
 from urllib import response
 
 import requests
@@ -27,7 +28,7 @@ after = time.time_ns() // 1000000  # convert to ms
 def scrobble() -> bool:
     global after
 
-    print(f"SCROBBLER: starting @ {after}")
+    print(f"SCROBBLER: starting @ {datetime.fromtimestamp(after/1000).isoformat()}")
 
     params = {"limit": SPOTIFY_RECENTLY_PLAYED_LIMIT, "after": after}
     try:
