@@ -56,9 +56,9 @@ class GlobalPlayInfo:
 
     def __init__(self):
         with db.database:
-            scrobble_count = db.Scrobble.select().count()
-            track_count = db.Track.select().count()
-            listening_time = (
+            self.scrobble_count = db.Scrobble.select().count()
+            self.track_count = db.Track.select().count()
+            self.listening_time = (
                 db.Scrobble.select(fn.SUM(db.Track.duration_ms)).join(db.Track).scalar()
             )
 
