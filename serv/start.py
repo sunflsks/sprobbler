@@ -14,7 +14,7 @@ os.environ["SPROBBLER_DEBUG"] = "YES"
 
 def start_flask_server():
     app = create_app()
-    app.run()
+    app.run(host="0.0.0.0")
 
 
 if __name__ == "__main__":
