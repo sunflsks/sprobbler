@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3510D4CE2BDD7DC30057A974 /* GlobalDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3510D4CD2BDD7DC30057A974 /* GlobalDataView.swift */; };
+		3510D4D02BDD7E430057A974 /* GlobalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3510D4CF2BDD7E430057A974 /* GlobalData.swift */; };
 		358523152A5F1A5600E51E61 /* spotipieApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358523142A5F1A5600E51E61 /* spotipieApp.swift */; };
 		358523172A5F1A5600E51E61 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358523162A5F1A5600E51E61 /* ContentView.swift */; };
 		358523192A5F1A5700E51E61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 358523182A5F1A5700E51E61 /* Assets.xcassets */; };
@@ -14,6 +16,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3510D4CD2BDD7DC30057A974 /* GlobalDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDataView.swift; sourceTree = "<group>"; };
+		3510D4CF2BDD7E430057A974 /* GlobalData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalData.swift; sourceTree = "<group>"; };
 		358523112A5F1A5600E51E61 /* spotipie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spotipie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		358523142A5F1A5600E51E61 /* spotipieApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = spotipieApp.swift; sourceTree = "<group>"; };
 		358523162A5F1A5600E51E61 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -55,6 +59,8 @@
 				358523162A5F1A5600E51E61 /* ContentView.swift */,
 				358523182A5F1A5700E51E61 /* Assets.xcassets */,
 				3585231A2A5F1A5700E51E61 /* Preview Content */,
+				3510D4CD2BDD7DC30057A974 /* GlobalDataView.swift */,
+				3510D4CF2BDD7E430057A974 /* GlobalData.swift */,
 			);
 			path = spotipie;
 			sourceTree = "<group>";
@@ -139,6 +145,8 @@
 			files = (
 				358523172A5F1A5600E51E61 /* ContentView.swift in Sources */,
 				358523152A5F1A5600E51E61 /* spotipieApp.swift in Sources */,
+				3510D4D02BDD7E430057A974 /* GlobalData.swift in Sources */,
+				3510D4CE2BDD7DC30057A974 /* GlobalDataView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
