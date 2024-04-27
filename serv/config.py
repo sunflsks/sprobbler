@@ -25,6 +25,10 @@ class Config:
         confdict = self.__get_toml_dict()
         return confdict["config"]["db"]
 
+    def port(self) -> str:
+        confdict = self.__get_toml_dict()
+        return confdict["config"]["port"]
+
     def secret_key(self) -> str:
         confdict = self.__get_toml_dict()
         return confdict["config"]["devkey"]
