@@ -1,56 +1,44 @@
 import os
 import os
-import sys
 import tomllib
 import pathlib
-
-# make this actual config file later
-# DEFAULT_CONFIG_PATH="config.toml"
-
-DEFAULT_DB_PATH = "/tmp/sprobbler.sqlite"
+from enum import Enum
 
 DEFAULT_CONFIG_PATH = pathlib.Path.home() / ".sprobblerconf.toml"
 
 
 class Config:
-    def __init__(self):
-        pathlib.Path(DEFAULT_CONFIG_PATH).touch()
-        self.config_path = DEFAULT_CONFIG_PATH
+    class Keys(Enum):
+        CLIENT_ID = "client_id"
+        CLIENT_SECRET = "client_secret"
+        DATABASE_LOCATION = "db"
+        DEVKEY = "devkey"
+        CELERY_BROKER = "celery_broker"
+        CELERY_BACKEND = "celery_backend"
+        PORT = "port"
 
-    def __get_toml_dict(self):
-        with open(self.config_path, "rb") as f:
-            return tomllib.load(f)
+    @staticmethod
+    def get(key: Keys) -> str | None:
+        with open(DEFAULT_CONFIG_PATH, "rb") as f:
+            try:
+                return tomllib.load(f)["config"][key.value]
+            except KeyError as err:
+                print(err)
+                return None
 
-    def database_location(self) -> str:
-        confdict = self.__get_toml_dict()
-        return confdict["config"]["db"]
-
-    def port(self) -> str:
-        confdict = self.__get_toml_dict()
-        return confdict["config"]["port"]
-
-    def secret_key(self) -> str:
-        confdict = self.__get_toml_dict()
-        return confdict["config"]["devkey"]
-
-    def spotify_info(self) -> tuple:
-        confdict = self.__get_toml_dict()
-        client_id = confdict["config"]["client_id"]
-        client_secret = confdict["config"]["client_secret"]
-        return (client_id, client_secret)
-
-    def validate_config(self) -> bool:
-        # we will just immediately skip to trying to read the config; if any exception is thrown, we'll catch it and return
-        # it.
-        try:
-            confdict = self.__get_toml_dict()
-            _ = self.database_location()
-            _ = self.secret_key()
-            _ = self.spotify_info()
-            return True
-        except Exception as ex:
-            print(f"Could not load config: {repr(ex)}")
+    @staticmethod
+    def validate() -> bool:
+        if not DEFAULT_CONFIG_PATH.exists():
+            print(f"Config file not found at {DEFAULT_CONFIG_PATH}")
             return False
 
-    def debug_enabled(self) -> bool:
+        for key in Config.Keys:
+            if Config.get(key) is None:
+                print(f"Missing key {key.value} in config file")
+                return False
+
+        return True
+
+    @staticmethod
+    def debug_enabled() -> bool:
         return os.environ["SPROBBLER_DEBUG"] == "YES"

@@ -14,11 +14,11 @@ os.environ["SPROBBLER_DEBUG"] = "YES"
 
 def start_flask_server():
     app = create_app()
-    app.run(host="0.0.0.0", port=Config().port())
+    app.run(host="0.0.0.0", port=int(Config.get(Config.Keys.PORT)))
 
 
 if __name__ == "__main__":
-    if not Config().validate_config():
+    if not Config.validate():
         exit(1)
 
     from db import init_db_if_not_exists

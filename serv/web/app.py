@@ -15,7 +15,8 @@ def create_app() -> flask.Flask:
         __name__, instance_relative_config=True, template_folder="./templates"
     )
     app.config.from_mapping(
-        SECRET_KEY=Config().secret_key(), DATABASE=Config().database_location()
+        SECRET_KEY=Config.get(Config.Keys.CLIENT_SECRET),
+        DATABASE=Config.get(Config.Keys.DATABASE_LOCATION),
     )
 
     app.register_blueprint(login.bp, url_prefix="/login")
@@ -50,8 +51,8 @@ def create_app() -> flask.Flask:
             return flask.redirect(flask.url_for("root"))
 
         extra = {
-            "client_id": Config().spotify_info()[0],
-            "client_secret": Config().spotify_info()[1],
+            "client_id": Config.get(Config.Keys.CLIENT_ID),
+            "client_secret": Config.get(Config.Keys.CLIENT_SECRET),
         }
 
         new_token = spotify.refresh_token(spotify.auto_refresh_url, **extra)  # type: ignore

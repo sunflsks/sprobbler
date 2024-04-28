@@ -21,7 +21,7 @@ from peewee import (
 from playhouse.sqlite_ext import JSONField
 from utils.scrobble import Scrobble as ScrobbleRepresentation
 
-database = SqliteDatabase(config.Config().database_location())
+database = SqliteDatabase(config.Config.get(config.Config.Keys.DATABASE_LOCATION))
 
 
 class BaseModel(Model):

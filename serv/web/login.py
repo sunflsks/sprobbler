@@ -7,7 +7,8 @@ from flask import Flask, redirect, url_for
 from flask_dance.consumer.storage.sqla import BaseStorage
 from flask_dance.contrib.spotify import make_spotify_blueprint, spotify
 
-client_id, secret = Config().spotify_info()
+client_id = Config.get(Config.Keys.CLIENT_ID)
+secret = Config.get(Config.Keys.CLIENT_SECRET)
 
 SCOPES = ["user-read-recently-played", "user-top-read"]
 
