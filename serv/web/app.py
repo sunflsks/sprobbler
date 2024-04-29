@@ -2,12 +2,15 @@ import json
 import os
 import flask
 from flask import g
+import celery
 
+from celery import Celery, Task
 from db import SpotifyConfig
 from config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify
 from play_info.global_play_info import GlobalPlayInfo
+from scrobbler import scrobbler  # this is needed for celery-beat! don't delete
 
 
 def create_app() -> flask.Flask:
@@ -17,7 +20,20 @@ def create_app() -> flask.Flask:
     app.config.from_mapping(
         SECRET_KEY=Config.get(Config.Keys.CLIENT_SECRET),
         DATABASE=Config.get(Config.Keys.DATABASE_LOCATION),
+        CELERY=dict(
+            broker_url=Config.get(Config.Keys.CELERY_BROKER),
+            result_backend=Config.get(Config.Keys.CELERY_BACKEND),
+            task_ignore_result=True,
+            beat_schedule={
+                "update-play-info": {
+                    "task": "scrobbler.scrobbler.start_scrobbler",
+                    "schedule": Config.get(Config.Keys.SCROBBLE_INTERVAL) or 60,
+                }
+            },
+        ),
     )
+
+    celery_init(app)
 
     app.register_blueprint(login.bp, url_prefix="/login")
 
@@ -66,9 +82,15 @@ def create_app() -> flask.Flask:
     return app
 
 
-if __name__ == "__main__":
-    print(
-        "running web server barebone, will not connect to backend db. should only be used for troubleshooting"
-    )
-    app = create_app()
-    app.run()
+def celery_init(app: flask.Flask) -> Celery:
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app.config_from_object(app.config["CELERY"])
+    celery_app.set_default()
+    app.extensions["celery"] = celery_app
+
+    return celery_app

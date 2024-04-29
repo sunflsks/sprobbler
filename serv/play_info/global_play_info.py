@@ -15,8 +15,6 @@
 # 10 Most Recent Scrobbles
 
 from typing import List
-from scrobbler.scrobbler import scrobble
-from utils.utils import repeat, debugprint
 import db
 from peewee import fn
 

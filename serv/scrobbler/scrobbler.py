@@ -1,32 +1,39 @@
 from doctest import debug
-import os
 import time
 import json
+from venv import logger
+from celery import shared_task
+from celery.utils.log import get_task_logger
 from datetime import datetime
-from urllib import response
 
 import requests
 from web.login import bp
-from threading import Timer, Lock
 from utils.scrobble import Scrobble
-from utils.utils import debugprint, repeat
+from utils.utils import debugprint
 from db import insert_scrobble_into_db
 
 # it seems a song is only registered when fully, 100 percent played; partial plays do not count
 # as a recently played song. however, if fast forwarded to the end it DOES count.
 
 # how many seconds between each call to api
-SCROBBLER_INTERVAL = 120
 SPOTIFY_RECENTLY_PLAYED_URL = "/v1/me/player/recently-played"
 SPOTIFY_RECENTLY_PLAYED_LIMIT = 50  # maximum value, who knows maybe the user is crazy
 
 after = time.time_ns() // 1000000  # convert to ms
 
 
-# will cycle
-@repeat(SCROBBLER_INTERVAL)
-def scrobble() -> bool:
+@shared_task(ignore_result=True)
+def start_scrobbler() -> bool | None:
     global after
+
+    # check if auth token is available
+    if not bp.session.authorized:
+        debugprint(
+            "SCROBBLER: session unauthorized, could not enable scrobbler, exiting"
+        )
+        return False
+
+    print("SCROBBLER: session authorized, enabling scrobbler")
 
     print(f"SCROBBLER: starting @ {datetime.fromtimestamp(after/1000).isoformat()}")
 
@@ -56,15 +63,3 @@ def scrobble() -> bool:
 
     after = time.time_ns() // 1000000  # convert to ms
     return True
-
-
-def start_scrobbler() -> bool | None:
-    # check if auth token is available
-    if not bp.session.authorized:
-        debugprint(
-            "SCROBBLER: session unauthorized, could not enable scrobbler, exiting"
-        )
-        return False
-
-    debugprint("SCROBBLER: session authorized, enabling scrobbler")
-    scrobble()

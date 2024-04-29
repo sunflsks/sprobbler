@@ -16,6 +16,7 @@ class Config:
         CELERY_BROKER = "celery_broker"
         CELERY_BACKEND = "celery_backend"
         PORT = "port"
+        SCROBBLE_INTERVAL = "scrobbling_interval"
 
     @staticmethod
     def get(key: Keys) -> str | None:
@@ -41,4 +42,4 @@ class Config:
 
     @staticmethod
     def debug_enabled() -> bool:
-        return os.environ["SPROBBLER_DEBUG"] == "YES"
+        return os.environ.get("SPROBBLER_DEBUG") == "YES"
