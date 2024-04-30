@@ -3,6 +3,7 @@ import os
 import flask
 from flask import g
 import celery
+import decimal
 
 from celery import Celery, Task
 from db import SpotifyConfig
@@ -11,6 +12,15 @@ from . import login
 from flask_dance.contrib.spotify import spotify
 from play_info.global_play_info import GlobalPlayInfo
 from scrobbler import scrobbler  # this is needed for celery-beat! don't delete
+import datetime
+
+def json_type_handler(obj):
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    if isinstance(obj, decimal.Decimal):
+        return int(obj)
+    raise TypeError("unknown")
+
 
 
 def create_app() -> flask.Flask:
@@ -77,7 +87,7 @@ def create_app() -> flask.Flask:
 
     @app.route("/global")
     def data():
-        return json.dumps(GlobalPlayInfo().dict_representation())
+        return json.dumps(GlobalPlayInfo().dict_representation(), default=json_type_handler)
 
     return app
 

@@ -60,24 +60,13 @@ class GlobalPlayInfo:
                 db.Scrobble.select(fn.SUM(db.Track.duration_ms)).join(db.Track).scalar()
             )
 
-            track_function = fn.COUNT(db.Scrobble.track)
             artist_function = fn.COUNT(db.Artist.id)
             album_function = fn.COUNT(db.Album.id)
 
             self.ten_most_played_tracks = [
                 PlayedTrack(**track)
                 for track in (
-                    db.Scrobble.select(
-                        db.Track.name,
-                        db.Album.cover_image_url,
-                        track_function.alias("play_count"),
-                    )
-                    .join(db.Track)
-                    .join(db.Album)
-                    .group_by(db.Track.name)
-                    .order_by(track_function.desc())
-                    .limit(10)
-                    .dicts()
+                    db.ten_most_played_tracks.select().dicts()
                 )
             ]
 

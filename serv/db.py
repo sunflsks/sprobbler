@@ -4,10 +4,10 @@ from doctest import debug
 from enum import unique
 from os import name
 from re import T
-import config
+from config import Config
 from utils.utils import debugprint
 from peewee import (
-    SqliteDatabase,
+    PostgresqlDatabase,
     Model,
     CharField,
     ForeignKeyField,
@@ -21,7 +21,11 @@ from peewee import (
 from playhouse.sqlite_ext import JSONField
 from utils.scrobble import Scrobble as ScrobbleRepresentation
 
-database = SqliteDatabase(config.Config.get(config.Config.Keys.DATABASE_LOCATION))
+dbname = Config().get(Config.Keys.PSQL_DB)
+username = Config().get(Config.Keys.PSQL_USER)
+password = Config().get(Config.Keys.PSQL_PASS)
+
+database = PostgresqlDatabase(dbname, user=username, password=password)
 
 
 class BaseModel(Model):
@@ -92,12 +96,23 @@ class ArtistTrack(BaseModel):
     artist = ForeignKeyField(Artist, to_field="id")
     track = ForeignKeyField(Track, to_field="id")
 
+    class Meta:
+        primary_key = False
+
 
 class Scrobble(BaseModel):
     track = ForeignKeyField(Track, to_field="id")
     played_at = DateTimeField()
+    id = IntegerField(primary_key=True)
+
+class ten_most_played_tracks(BaseModel):
+    name = CharField(primary_key=True)
+    play_count = IntegerField()
+    cover_image_url = CharField()
 
 
+
+'''
 def init_db_if_not_exists() -> None:
     with database:
         if not database.table_exists("spotifyconfig"):
@@ -107,6 +122,7 @@ def init_db_if_not_exists() -> None:
             database.create_tables(
                 [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
             )
+'''
 
 
 def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
@@ -120,15 +136,6 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 cover_image_url=scrobble.track.album.cover_image_url,
             ).on_conflict_ignore().execute()
 
-            # then insert the artists into the database, if they do not already exist, as well as set up artist-track relationships
-            for artist in scrobble.track.artists:
-                Artist.insert(
-                    name=artist.name, id=artist.id
-                ).on_conflict_ignore().execute()
-                ArtistTrack.insert(
-                    artist=artist.id, track=scrobble.track.id
-                ).on_conflict_ignore().execute()
-
             # then insert the track into the database, if it does not already exist
             Track.insert(
                 name=scrobble.track.name,
@@ -139,12 +146,20 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 duration_ms=scrobble.track.duration_ms,
             ).on_conflict_ignore().execute()
 
+            # then insert the artists into the database, if they do not already exist, as well as set up artist-track relationships
+            for artist in scrobble.track.artists:
+                Artist.insert(
+                    name=artist.name, id=artist.id
+                ).on_conflict_ignore().execute()
+                ArtistTrack.insert(
+                    artist=artist.id, track=scrobble.track.id
+                ).on_conflict_ignore().execute()
+
             # finally, insert the scrobble into the database
             Scrobble.insert(
                 track=scrobble.track.id, played_at=scrobble.played_at
             ).execute()
-
             return True
         except PeeweeException as e:
-            debugprint(f"Could not load scrobble into database: {e}")
+            print(f"Could not load scrobble into database: {e}")
             return False

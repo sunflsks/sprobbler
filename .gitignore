@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/xcode,visualstudiocode,python,swift
 # Edit at https://www.toptal.com/developers/gitignore?templates=xcode,visualstudiocode,python,swift
 
+serv/supervisord.pid
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

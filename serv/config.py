@@ -17,6 +17,9 @@ class Config:
         CELERY_BACKEND = "celery_backend"
         PORT = "port"
         SCROBBLE_INTERVAL = "scrobbling_interval"
+        PSQL_DB = "psql_db"
+        PSQL_USER = "psql_username"
+        PSQL_PASS = "psql_password"
 
     @staticmethod
     def get(key: Keys) -> str | None:
