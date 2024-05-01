@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os, time
 from scrobbler.scrobbler import start_scrobbler
 from config import Config
 from threading import Thread
@@ -15,6 +15,10 @@ def start_flask_server():
     app = create_app()
     app.run(host="0.0.0.0", port=int(Config.get(Config.Keys.PORT)))
 
+def start_scrobbler_timed():
+    while True:
+        start_scrobbler()
+        time.sleep(int(Config.get(Config.Keys.SCROBBLE_INTERVAL)))
 
 if __name__ == "__main__":
     if not Config.validate():
@@ -23,4 +27,4 @@ if __name__ == "__main__":
     from web.app import create_app
 
     Thread(target=start_flask_server).start()
-    Thread(target=start_scrobbler).start()
+    Thread(target=start_scrobbler_timed).start()
