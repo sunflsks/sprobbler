@@ -60,61 +60,24 @@ class GlobalPlayInfo:
                 db.Scrobble.select(fn.SUM(db.Track.duration_ms)).join(db.Track).scalar()
             )
 
-            artist_function = fn.COUNT(db.Artist.id)
-            album_function = fn.COUNT(db.Album.id)
-
             self.ten_most_played_tracks = [
                 PlayedTrack(**track)
-                for track in (
-                    db.ten_most_played_tracks.select().dicts()
-                )
+                for track in (db.ten_most_played_tracks.select().dicts())
             ]
 
             self.ten_most_played_artists = [
                 PlayedArtist(**artist)
-                for artist in (
-                    db.Scrobble.select(
-                        db.Artist.name, artist_function.alias("play_count")
-                    )
-                    .join(db.Track)
-                    .join(db.ArtistTrack)
-                    .join(db.Artist)
-                    .group_by(db.Artist.id)
-                    .order_by(artist_function.desc())
-                    .limit(10)
-                    .dicts()
-                )
+                for artist in (db.ten_most_played_artists.select().dicts())
             ]
 
             self.ten_most_played_albums = [
                 PlayedAlbum(**album)
-                for album in (
-                    db.Scrobble.select(
-                        db.Album.name,
-                        album_function.alias("play_count"),
-                        db.Album.cover_image_url,
-                    )
-                    .join(db.Track)
-                    .join(db.Album)
-                    .group_by(db.Album.id)
-                    .order_by(album_function.desc())
-                    .limit(10)
-                    .dicts()
-                )
+                for album in (db.ten_most_played_albums.select().dicts())
             ]
 
             self.ten_most_recent_scrobbles = [
                 PlayedTrack(**track)
-                for track in (
-                    db.Scrobble.select(
-                        db.Track.name, db.Album.cover_image_url, db.Scrobble.played_at
-                    )
-                    .join(db.Track)
-                    .join(db.Album)
-                    .order_by(db.Scrobble.played_at.desc())
-                    .limit(10)
-                    .dicts()
-                )
+                for track in (db.ten_most_recent_scrobbles.select().dicts())
             ]
 
     def dict_representation(self):

@@ -105,14 +105,31 @@ class Scrobble(BaseModel):
     played_at = DateTimeField()
     id = IntegerField(primary_key=True)
 
+
 class ten_most_played_tracks(BaseModel):
     name = CharField(primary_key=True)
     play_count = IntegerField()
     cover_image_url = CharField()
 
 
+class ten_most_played_albums(BaseModel):
+    name = CharField(primary_key=True)
+    play_count = IntegerField()
+    cover_image_url = CharField()
 
-'''
+
+class ten_most_played_artists(BaseModel):
+    name = CharField(primary_key=True)
+    play_count = IntegerField()
+
+
+class ten_most_recent_scrobbles(BaseModel):
+    name = CharField(primary_key=True)
+    cover_image_url = CharField()
+    played_at = DateTimeField()
+
+
+"""
 def init_db_if_not_exists() -> None:
     with database:
         if not database.table_exists("spotifyconfig"):
@@ -122,7 +139,7 @@ def init_db_if_not_exists() -> None:
             database.create_tables(
                 [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
             )
-'''
+"""
 
 
 def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
