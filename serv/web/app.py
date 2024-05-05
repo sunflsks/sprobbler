@@ -9,10 +9,12 @@ from celery import Celery, Task
 from db import SpotifyConfig
 from config import Config
 from . import login
-from flask_dance.contrib.spotify import spotify
+from flask_dance.contrib.spotify import spotify  # type: ignore
 from play_info.global_play_info import GlobalPlayInfo
 from scrobbler import scrobbler  # this is needed for celery-beat! don't delete
+from web.blueprints.info import info_bp
 import datetime
+
 
 def json_type_handler(obj):
     if isinstance(obj, datetime.datetime):
@@ -20,7 +22,6 @@ def json_type_handler(obj):
     if isinstance(obj, decimal.Decimal):
         return int(obj)
     raise TypeError("unknown")
-
 
 
 def create_app() -> flask.Flask:
@@ -46,6 +47,7 @@ def create_app() -> flask.Flask:
     celery_init(app)
 
     app.register_blueprint(login.bp, url_prefix="/login")
+    app.register_blueprint(info_bp, url_prefix="/info")
 
     @app.route("/")
     def root():
@@ -87,7 +89,9 @@ def create_app() -> flask.Flask:
 
     @app.route("/global")
     def data():
-        return json.dumps(GlobalPlayInfo().dict_representation(), default=json_type_handler)
+        return json.dumps(
+            GlobalPlayInfo().dict_representation(), default=json_type_handler
+        )
 
     return app
 
