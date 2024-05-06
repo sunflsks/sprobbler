@@ -127,6 +127,7 @@ class ten_most_recent_scrobbles(BaseModel):
     name = CharField(primary_key=True)
     cover_image_url = CharField()
     played_at = DateTimeField()
+    track_id = CharField()
 
 
 """

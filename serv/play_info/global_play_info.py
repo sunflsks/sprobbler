@@ -33,13 +33,15 @@ class PlayedArtist:
 
 
 class PlayedTrack:
-    def __init__(self, name, cover_image_url, play_count=None, played_at=None):
+    def __init__(self, name, cover_image_url, play_count=None, played_at=None, track_id=None):
         self.name = name
         self.cover_image_url = cover_image_url
         if play_count:
             self.play_count = play_count
         if played_at:
             self.played_at = played_at
+        if track_id:
+            self.track_id = track_id
 
 
 class GlobalPlayInfo:
@@ -107,6 +109,7 @@ class GlobalPlayInfo:
                     "name": track.name,
                     "played_at": track.played_at,
                     "cover_image_url": track.cover_image_url,
+                    "track_id": track.track_id,
                 }
                 for track in self.ten_most_recent_scrobbles
             ],
