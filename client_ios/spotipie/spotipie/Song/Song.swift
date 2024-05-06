@@ -30,7 +30,6 @@ struct Song: Decodable {
             return
         }
         
-        let string = String(decoding: data, as: UTF8.self)
         try song_details = JSONDecoder().decode(SongDetails.self, from: data)
     }
 }
