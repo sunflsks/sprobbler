@@ -7,7 +7,7 @@
 
 import Foundation
 
-let REMOTE_URL = "https://sprobbler.sudhip.com/global"
+private let REMOTE_URL = "https://sprobbler.sudhip.com/global"
 
 struct GlobalData: Decodable {
     struct PlayedItem: Decodable {
@@ -19,24 +19,23 @@ struct GlobalData: Decodable {
     struct Scrobble: Decodable {
         let name: String
         let played_at: String
+        let track_id: String
         let cover_image_url: URL?
     }
    
+    let ten_most_recent_scrobbles: [Scrobble]
     let ten_most_played_artists: [PlayedItem]
     let ten_most_played_albums: [PlayedItem]
     let ten_most_played_tracks: [PlayedItem]
-    let ten_most_recent_scrobbles: [Scrobble]
-}
-
-func getGlobalData() async throws -> GlobalData? {
-    let urlRequest = URLRequest(url: URL(string: REMOTE_URL)!)
-    let (data, response) = try await URLSession.shared.data(for: urlRequest)
     
-    guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-        return nil
+    static func getGlobalData() async throws -> GlobalData? {
+        let urlRequest = URLRequest(url: URL(string: REMOTE_URL)!)
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            return nil
+        }
+        
+        return try JSONDecoder().decode(GlobalData.self, from: data)
     }
-    
-    let globalData = try JSONDecoder().decode(GlobalData.self, from: data)
-    
-    return globalData
 }

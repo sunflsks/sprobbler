@@ -8,7 +8,7 @@
 import SwiftUI
 import Kingfisher
 
-struct ScrobbleCellView: View {
+struct ScrobbleCell: View {
     @State var name: String
     @State var played_at: Date?
     @State var image_url: URL?
