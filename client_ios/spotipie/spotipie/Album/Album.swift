@@ -7,18 +7,22 @@
 
 import Foundation
 
-private let REMOTE_URL = "https://sprobbler.sudhip.com/info/track/"
+private let REMOTE_URL = "https://sprobbler.sudhip.com/info/album/"
 
-struct Song: Decodable {
+struct Album: Decodable {
+    struct SpotifyImageObject: Decodable {
+        let url: URL
+        let height: Int
+        let width: Int
+    }
+    
     let id: String
+        
+    var images: [SpotifyImageObject]?
+    var label: String?
     var name: String?
-    var duration_ms: UInt32?
-    
-    var is_local: Bool?
-    var preview_url: URL?
-    var explicit: Bool?
-    
-    var album: Album?
+    var release_date: String?
+    var total_tracks: Int?
     
     mutating func load() async throws {
         let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: REMOTE_URL + id)!)
@@ -27,6 +31,6 @@ struct Song: Decodable {
             return
         }
         
-        self = try JSONDecoder().decode(Song.self, from: data)
+        self = try JSONDecoder().decode(Album.self, from: data)
     }
 }

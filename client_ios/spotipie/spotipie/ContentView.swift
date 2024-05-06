@@ -25,7 +25,7 @@ struct ContentView: View {
         NavigationStack {
             List(globalData?.ten_most_recent_scrobbles ?? [], id: \.played_at) { song in
                 NavigationLink {
-                    SongDetail(song: Song(track_id: song.track_id))
+                    SongDetail(song: Song(id: song.track_id))
                 } label: {
                     ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
                 }

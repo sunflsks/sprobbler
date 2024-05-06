@@ -29,8 +29,7 @@ struct GlobalData: Decodable {
     let ten_most_played_tracks: [PlayedItem]
     
     static func getGlobalData() async throws -> GlobalData? {
-        let urlRequest = URLRequest(url: URL(string: REMOTE_URL)!)
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        let (data, response) = try await URLSessionManager.normalSessionManager.data(from: URL(string: REMOTE_URL)!)
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             return nil
