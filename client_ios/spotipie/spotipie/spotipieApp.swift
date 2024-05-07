@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 @main
 struct spotipieApp: App {
+    init() {
+        try? AVAudioSession.sharedInstance().setCategory(.playback)
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    print(URLCache.shared.currentDiskUsage)
+                }
         }
     }
 }
