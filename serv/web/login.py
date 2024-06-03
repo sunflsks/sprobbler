@@ -4,8 +4,8 @@ from db import SpotifyConfig
 from config import Config
 from flask import Flask, redirect, url_for
 
-from flask_dance.consumer.storage.sqla import BaseStorage
-from flask_dance.contrib.spotify import make_spotify_blueprint, spotify
+from flask_dance.consumer.storage.sqla import BaseStorage  # type: ignore
+from flask_dance.contrib.spotify import make_spotify_blueprint, spotify  # type: ignore
 
 client_id = Config.get(Config.Keys.CLIENT_ID)
 secret = Config.get(Config.Keys.CLIENT_SECRET)

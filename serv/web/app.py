@@ -2,6 +2,7 @@ import json
 import os
 import flask
 from flask import g
+from peewee import PeeweeException
 import celery
 import decimal
 
@@ -10,9 +11,17 @@ from db import SpotifyConfig
 from config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify  # type: ignore
-from play_info.global_play_info import GlobalPlayInfo
+from play_info.utils import PlayedItemsJSONEncoder
+from play_info.albums import ten_most_played_albums
+from play_info.artists import ten_most_played_artists
+from play_info.track import (
+    ten_most_played_tracks,
+    scrobbles_between_timestamps,
+    track_scrobble_info,
+    ten_most_recent_scrobbles,
+)
 from scrobbler import scrobbler  # this is needed for celery-beat! don't delete
-from web.blueprints.info import info_bp
+from web.blueprints.info import info_bp, track
 import datetime
 
 
@@ -89,9 +98,42 @@ def create_app() -> flask.Flask:
 
     @app.route("/global")
     def data():
-        return json.dumps(
-            GlobalPlayInfo().dict_representation(), default=json_type_handler
-        )
+        track_info = track_scrobble_info()
+        output = {}
+        try:
+            output["ten_most_played_artists"] = ten_most_played_artists()
+            output["ten_most_played_albums"] = ten_most_played_albums()
+            output["ten_most_played_tracks"] = ten_most_played_tracks()
+            output["ten_most_recent_scrobbles"] = ten_most_recent_scrobbles()
+            output["scrobble_count"] = track_info.scrobble_count
+            output["track_count"] = track_info.track_count
+            output["listening_time"] = track_info.listening_time
+
+            return json.dumps(output, cls=PlayedItemsJSONEncoder)
+        except (TypeError, PeeweeException) as e:
+            return f"Error: {e}"
+
+    @app.route("/scrobbles_between")
+    def scrobbles_between():
+        start = flask.request.args.get("start")
+        end = flask.request.args.get("end")
+
+        if start is None or end is None:
+            return "Invalid timestamp"
+
+        try:
+            start_timestamp = datetime.datetime.fromtimestamp(int(start))
+            end_timestamp = datetime.datetime.fromtimestamp(int(end))
+        except (ValueError, OverflowError) as e:
+            return f"Invalid timestamp: {e}"
+
+        try:
+            return json.dumps(
+                scrobbles_between_timestamps(start_timestamp, end_timestamp),
+                cls=PlayedItemsJSONEncoder,
+            )
+        except (TypeError, PeeweeException) as e:
+            return f"Error: {e}"
 
     return app
 

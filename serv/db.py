@@ -130,6 +130,13 @@ class ten_most_recent_scrobbles(BaseModel):
     track_id = CharField()
 
 
+class scrobbles_by_timestamp(BaseModel):
+    name = CharField(primary_key=True)
+    cover_image_url = CharField()
+    played_at = DateTimeField()
+    track_id = CharField()
+
+
 """
 def init_db_if_not_exists() -> None:
     with database:
