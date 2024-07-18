@@ -2,7 +2,7 @@
 
 ## just a leraning experiment for psql and flask among other things
 
-## The ultimate goal of this project it to be a functional last.fm clone, except instead of a website interface it delivers the information through SwiftUI (because I don't know how to make a website yet LOL)
+## The ultimate goal of this project it to be a functional last.fm clone, except instead of a website interface it delivers the information through SwiftUI
 
 ## TODO:
 - Paginate Recent Tracks
