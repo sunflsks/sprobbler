@@ -15,12 +15,6 @@ struct ContentView: View {
         globalData = try? await GlobalData.getGlobalData()
     }
     
-    func dateFromISO(str: String) -> Date? {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
-        return formatter.date(from: str)
-    }
-    
     var body: some View {
         NavigationStack {
             List(globalData?.ten_most_recent_scrobbles ?? [], id: \.played_at) { song in
@@ -29,6 +23,11 @@ struct ContentView: View {
                 } label: {
                     ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
                 }
+            }
+            NavigationLink {
+                SongsByTimestampView(globalData: globalData)
+            } label: {
+                Text("Show More")
             }
             .navigationTitle("Recent Scrobbles")
         }

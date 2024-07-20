@@ -7,8 +7,6 @@
 
 import Foundation
 
-private let REMOTE_URL = "https://sprobbler.sudhip.com/info/track/"
-
 struct Song: Decodable {
     let id: String
     var name: String?
@@ -21,7 +19,7 @@ struct Song: Decodable {
     var album: Album?
     
     mutating func load() async throws {
-        let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: REMOTE_URL + id)!)
+        let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string:  "/info/track/" + id, relativeTo: REMOTE_URL)!)
         
         guard (response as! HTTPURLResponse).statusCode == 200 else {
             return

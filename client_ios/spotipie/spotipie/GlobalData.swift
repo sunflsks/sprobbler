@@ -7,7 +7,6 @@
 
 import Foundation
 
-private let REMOTE_URL = "https://sprobbler.sudhip.com/global"
 
 struct GlobalData: Decodable {
     struct PlayedItem: Decodable {
@@ -16,7 +15,7 @@ struct GlobalData: Decodable {
         let cover_image_url: URL?
     }
     
-    struct Scrobble: Decodable {
+    struct Scrobble: Decodable, Equatable {
         let name: String
         let played_at: String
         let track_id: String
@@ -29,7 +28,7 @@ struct GlobalData: Decodable {
     let ten_most_played_tracks: [PlayedItem]
     
     static func getGlobalData() async throws -> GlobalData? {
-        let (data, response) = try await URLSessionManager.normalSessionManager.data(from: URL(string: REMOTE_URL)!)
+        let (data, response) = try await URLSessionManager.normalSessionManager.data(from: URL(string: "/global", relativeTo: REMOTE_URL)!)
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             return nil

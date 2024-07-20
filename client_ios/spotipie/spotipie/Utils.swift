@@ -7,6 +7,8 @@
 
 import Foundation
 
+let REMOTE_URL = URL(string: "https://sprobbler.sudhip.com")!
+
 struct URLSessionManager {
     static let cachedSessionManager: URLSession = {
         let configuration = URLSessionConfiguration.default
@@ -23,6 +25,12 @@ func dateToString(date: Date) -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MMM d, y HH:mm:ss"
     return dateFormatter.string(from: date)
+}
+
+func dateFromISO(str: String) -> Date? {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withFractionalSeconds, .withInternetDateTime]
+    return formatter.date(from: str)
 }
 
 // https://stackoverflow.com/questions/30771820/how-to-convert-timeinterval-into-minutes-seconds-and-milliseconds-in-swift

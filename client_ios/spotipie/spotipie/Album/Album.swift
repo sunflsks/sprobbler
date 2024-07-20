@@ -7,8 +7,6 @@
 
 import Foundation
 
-private let REMOTE_URL = "https://sprobbler.sudhip.com/info/album/"
-
 struct Album: Decodable {
     struct SpotifyImageObject: Decodable {
         let url: URL
@@ -25,7 +23,7 @@ struct Album: Decodable {
     var total_tracks: Int?
     
     mutating func load() async throws {
-        let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: REMOTE_URL + id)!)
+        let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: "/info/album/" + id, relativeTo: REMOTE_URL)!)
         
         guard (response as! HTTPURLResponse).statusCode == 200 else {
             return
