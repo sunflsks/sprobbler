@@ -16,6 +16,7 @@ from play_info.albums import ten_most_played_albums
 from play_info.artists import ten_most_played_artists
 from play_info.track import (
     ten_most_played_tracks,
+    scrobbles_paginated as scrobbles_paginated_internal,
     scrobbles_between_timestamps,
     track_scrobble_info,
     ten_most_recent_scrobbles,
@@ -130,6 +131,28 @@ def create_app() -> flask.Flask:
         try:
             return json.dumps(
                 scrobbles_between_timestamps(start_timestamp, end_timestamp),
+                cls=PlayedItemsJSONEncoder,
+            )
+        except (TypeError, PeeweeException) as e:
+            return f"Error: {e}"
+
+    @app.route("/scrobbles_paginated")
+    def scrobbles_paginated():
+        start = flask.request.args.get("from")
+        count = flask.request.args.get("count")
+
+        if start is None or count is None:
+            return "Invalid timestamp/count value"
+
+        try:
+            start_timestamp = datetime.datetime.fromtimestamp(int(start))
+            count = int(count)
+        except (ValueError, OverflowError) as e:
+            return f"Invalid timestamp/count value: {e}"
+
+        try:
+            return json.dumps(
+                scrobbles_paginated_internal(start_timestamp, count),
                 cls=PlayedItemsJSONEncoder,
             )
         except (TypeError, PeeweeException) as e:

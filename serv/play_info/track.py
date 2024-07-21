@@ -38,6 +38,21 @@ def scrobbles_between_timestamps(start, end):
         ]
 
 
+def scrobbles_paginated(start, count):
+    with db.database:
+        return [
+            PlayedTrack(**track)
+            for track in (
+                db.scrobbles_by_timestamp.select()
+                .where(
+                    db.scrobbles_by_timestamp.played_at <= start,
+                )
+                .limit(count)
+                .dicts()
+            )
+        ]
+
+
 def ten_most_recent_scrobbles():
     return [
         PlayedTrack(**track)
