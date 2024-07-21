@@ -4,7 +4,7 @@
 
 ## TODO:
 - Paginate Recent Tracks
-    - Right now, only Top 10 tracks are shown. Have option to paginate as well
+- Right now, only Top 10 tracks are shown. Have option to paginate as well (Done)
 - Show top 5 most listened-to artists in the past week
 - Show top 5 most listened-to artists in the past month
 
