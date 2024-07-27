@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 struct Album: Decodable {
     struct SpotifyImageObject: Decodable {
         let url: URL
@@ -14,6 +15,15 @@ struct Album: Decodable {
         let width: Int
     }
     
+    struct AlbumTrackInfo: Decodable {
+        struct Track: Decodable {
+            let name: String
+            let id: String
+        }
+        
+        let items: [Track]
+    }
+
     let id: String
         
     var images: [SpotifyImageObject]?
@@ -21,6 +31,7 @@ struct Album: Decodable {
     var name: String?
     var release_date: String?
     var total_tracks: Int?
+    var tracks: AlbumTrackInfo?
     
     mutating func load() async throws {
         let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: "/info/album/" + id, relativeTo: REMOTE_URL)!)

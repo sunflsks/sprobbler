@@ -44,7 +44,7 @@ struct ContentView: View {
                 
                 Section(header: Text("Most Played")) {
                     NavigationLink {
-                        EmptyView()
+                        Top10ArtistView(globalData: globalData)
                     } label: {
                         HStack {
                             Image(systemName: "music.mic")
@@ -72,7 +72,7 @@ struct ContentView: View {
                     }
                     
                     NavigationLink {
-                        EmptyView()
+                        Top10SongView(globalData: globalData)
                     } label: {
                         HStack {
                             Image(systemName: "music.quarternote.3")

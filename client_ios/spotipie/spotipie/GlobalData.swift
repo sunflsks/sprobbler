@@ -13,6 +13,7 @@ struct GlobalData: Decodable {
         let name: String
         let play_count: Int
         let cover_image_url: URL?
+        let id: String
     }
     
     struct Scrobble: Decodable, Equatable {

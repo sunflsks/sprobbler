@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct Top10AlbumView: View {
+struct Top10ArtistView: View {
     @State var globalData: GlobalData?
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach(globalData?.ten_most_played_albums ?? [], id: \.id) { album in
+                ForEach(globalData?.ten_most_played_artists ?? [], id: \.id) { artist in
                     NavigationLink {
-                        AlbumDetail(album: Album(id: album.id))
+                        EmptyView()
                     } label: {
-                        Top10Cell(name: album.name, image_url: album.cover_image_url, play_count: album.play_count)
+                        ArtistCell(name: artist.name, play_count: artist.play_count, id: artist.id)
                     }
                 }
                 .navigationTitle("Top 10 Albums")
