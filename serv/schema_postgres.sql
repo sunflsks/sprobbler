@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.1
--- Dumped by pg_dump version 16.2
+-- Dumped from database version 16.3
+-- Dumped by pg_dump version 16.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -42,7 +42,8 @@ CREATE VIEW public.albums_by_playcount AS
 SELECT
     NULL::text AS name,
     NULL::bigint AS play_count,
-    NULL::text AS cover_image_url;
+    NULL::text AS cover_image_url,
+    NULL::text AS id;
 
 
 ALTER VIEW public.albums_by_playcount OWNER TO sudhip;
@@ -106,7 +107,8 @@ ALTER TABLE public.track OWNER TO sudhip;
 
 CREATE VIEW public.artists_by_playcount AS
  SELECT artist.name,
-    count(DISTINCT scrobble.id) AS play_count
+    count(DISTINCT scrobble.id) AS play_count,
+    artist.id
    FROM (((public.artist
      JOIN public.artisttrack ON ((artist.id = artisttrack.artist_id)))
      JOIN public.track ON ((track.id = artisttrack.track_id)))
@@ -146,7 +148,8 @@ ALTER SEQUENCE public.scrobble_id_seq OWNED BY public.scrobble.id;
 CREATE VIEW public.scrobbles_by_timestamp AS
  SELECT track.name,
     album.cover_image_url,
-    scrobble.played_at
+    scrobble.played_at,
+    track.id AS track_id
    FROM ((public.track
      JOIN public.scrobble ON ((scrobble.track_id = track.id)))
      JOIN public.album ON ((album.id = track.album_id)))
@@ -197,7 +200,8 @@ ALTER SEQUENCE public.spotifyconfig_id_seq OWNED BY public.spotifyconfig.id;
 CREATE VIEW public.ten_most_played_albums AS
  SELECT name,
     play_count,
-    cover_image_url
+    cover_image_url,
+    id
    FROM public.albums_by_playcount
  LIMIT 10;
 
@@ -210,7 +214,8 @@ ALTER VIEW public.ten_most_played_albums OWNER TO sudhip;
 
 CREATE VIEW public.ten_most_played_artists AS
  SELECT name,
-    play_count
+    play_count,
+    id
    FROM public.artists_by_playcount
  LIMIT 10;
 
@@ -224,11 +229,12 @@ ALTER VIEW public.ten_most_played_artists OWNER TO sudhip;
 CREATE VIEW public.tracks_by_playcount AS
  SELECT track.name,
     count(track.id) AS play_count,
-    album.cover_image_url
+    album.cover_image_url,
+    track.id
    FROM ((public.track
      JOIN public.album ON ((track.album_id = album.id)))
      JOIN public.scrobble ON ((scrobble.track_id = track.id)))
-  GROUP BY track.name, album.cover_image_url
+  GROUP BY track.name, album.cover_image_url, track.id
   ORDER BY (count(track.id)) DESC;
 
 
@@ -241,7 +247,8 @@ ALTER VIEW public.tracks_by_playcount OWNER TO sudhip;
 CREATE VIEW public.ten_most_played_tracks AS
  SELECT name,
     play_count,
-    cover_image_url
+    cover_image_url,
+    id
    FROM public.tracks_by_playcount
  LIMIT 10;
 
@@ -255,7 +262,8 @@ ALTER VIEW public.ten_most_played_tracks OWNER TO sudhip;
 CREATE VIEW public.ten_most_recent_scrobbles AS
  SELECT name,
     cover_image_url,
-    played_at
+    played_at,
+    track_id
    FROM public.scrobbles_by_timestamp
  LIMIT 10;
 
@@ -358,7 +366,8 @@ CREATE UNIQUE INDEX idx_16458_spotifyconfig_name ON public.spotifyconfig USING b
 CREATE OR REPLACE VIEW public.albums_by_playcount AS
  SELECT album.name,
     count(scrobble.track_id) AS play_count,
-    album.cover_image_url
+    album.cover_image_url,
+    album.id
    FROM ((public.album
      JOIN public.track ON ((track.album_id = album.id)))
      JOIN public.scrobble ON ((scrobble.track_id = track.id)))
