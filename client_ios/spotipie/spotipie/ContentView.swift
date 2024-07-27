@@ -58,7 +58,7 @@ struct ContentView: View {
                     }
                     
                     NavigationLink {
-                        EmptyView()
+                        Top10AlbumView(globalData: globalData)
                     } label: {
                         HStack {
                             Image(systemName: "person.2.crop.square.stack")

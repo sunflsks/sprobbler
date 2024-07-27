@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1002C4A92C55204700168886 /* Top10AlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1002C4A82C55204700168886 /* Top10AlbumView.swift */; };
+		1002C4AD2C5523A600168886 /* Top10Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1002C4AC2C5523A600168886 /* Top10Cell.swift */; };
 		3510D4D02BDD7E430057A974 /* GlobalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3510D4CF2BDD7E430057A974 /* GlobalData.swift */; };
 		3553092D2BDF606D007F8964 /* ScrobbleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3553092C2BDF606D007F8964 /* ScrobbleCell.swift */; };
 		355309302BDF61F2007F8964 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 3553092F2BDF61F2007F8964 /* Kingfisher */; };
@@ -22,6 +24,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1002C4A82C55204700168886 /* Top10AlbumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Top10AlbumView.swift; sourceTree = "<group>"; };
+		1002C4AC2C5523A600168886 /* Top10Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Top10Cell.swift; sourceTree = "<group>"; };
 		3510D4CF2BDD7E430057A974 /* GlobalData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalData.swift; sourceTree = "<group>"; };
 		3553092C2BDF606D007F8964 /* ScrobbleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrobbleCell.swift; sourceTree = "<group>"; };
 		355309312BDF6850007F8964 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -60,6 +64,7 @@
 		3573AABB2BE944CE00092146 /* Album */ = {
 			isa = PBXGroup;
 			children = (
+				1002C4A82C55204700168886 /* Top10AlbumView.swift */,
 				3573AABC2BE944F200092146 /* Album.swift */,
 			);
 			path = Album;
@@ -92,6 +97,7 @@
 				3585231A2A5F1A5700E51E61 /* Preview Content */,
 				3510D4CF2BDD7E430057A974 /* GlobalData.swift */,
 				3553092C2BDF606D007F8964 /* ScrobbleCell.swift */,
+				1002C4AC2C5523A600168886 /* Top10Cell.swift */,
 				355309312BDF6850007F8964 /* Utils.swift */,
 				35EB61002C10321E009B8FFF /* SongsByTimestampView.swift */,
 			);
@@ -184,11 +190,13 @@
 			files = (
 				3569AAA52BE87AFA005A2B8A /* Song.swift in Sources */,
 				35EB61012C10321E009B8FFF /* SongsByTimestampView.swift in Sources */,
+				1002C4AD2C5523A600168886 /* Top10Cell.swift in Sources */,
 				358523172A5F1A5600E51E61 /* ContentView.swift in Sources */,
 				3569AAA22BE87AE9005A2B8A /* SongDetail.swift in Sources */,
 				3553092D2BDF606D007F8964 /* ScrobbleCell.swift in Sources */,
 				358523152A5F1A5600E51E61 /* spotipieApp.swift in Sources */,
 				3510D4D02BDD7E430057A974 /* GlobalData.swift in Sources */,
+				1002C4A92C55204700168886 /* Top10AlbumView.swift in Sources */,
 				355309322BDF6850007F8964 /* Utils.swift in Sources */,
 				3573AABD2BE944F200092146 /* Album.swift in Sources */,
 			);
