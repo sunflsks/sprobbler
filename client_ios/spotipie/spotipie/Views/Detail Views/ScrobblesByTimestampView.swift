@@ -9,7 +9,7 @@ import SwiftUI
 
 let ADDITIONAL_SONG_COUNT = 20
 
-struct SongsByTimestampView: View {
+struct ScrobblesByTimestampView: View {
     @State var globalData: GlobalData?
     @State var scrobbles: [GlobalData.Scrobble]
     @State var isLoading: Bool = false
@@ -43,7 +43,7 @@ struct SongsByTimestampView: View {
             List {
                 ForEach(scrobbles, id: \.played_at) { song in
                     NavigationLink {
-                        SongDetail(song: Song(id: song.track_id))
+                        SongDetailView(song: Song(id: song.track_id))
                     } label: {
                         ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
                     }

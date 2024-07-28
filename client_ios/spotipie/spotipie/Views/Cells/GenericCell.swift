@@ -8,7 +8,7 @@
 import SwiftUI
 import Kingfisher
 
-struct Top10Cell: View {
+struct GenericCell: View {
     @State var name: String
     @State var image_url: URL?
     @State var play_count: Int

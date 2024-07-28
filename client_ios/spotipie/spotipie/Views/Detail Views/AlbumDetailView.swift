@@ -9,7 +9,22 @@ import SwiftUI
 import Kingfisher
 import AVFoundation
 
-struct AlbumDetail: View {
+fileprivate struct SongCell: View {
+    @State var name: String
+    
+    var body: some View {
+        HStack {
+            VStack {
+                HStack {
+                    Text(name)
+                    Spacer()
+                }
+            }
+        }
+    }
+}
+
+struct AlbumDetailView: View {
     @State var album: Album
     @State var playingPreview = false
     @State var frameBounding: CGSize?
@@ -58,7 +73,7 @@ struct AlbumDetail: View {
                             if let tracks = album.tracks?.items {
                                 ForEach(tracks, id: \.name) { song in
                                     NavigationLink {
-                                        SongDetail(song: Song(id: song.id))
+                                        SongDetailView(song: Song(id: song.id))
                                     } label: {
                                         SongCell(name: song.name)
                                     }

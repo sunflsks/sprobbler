@@ -15,9 +15,9 @@ struct Top10SongView: View {
             List {
                 ForEach(globalData?.ten_most_played_tracks ?? [], id: \.id) { song in
                     NavigationLink {
-                        SongDetail(song: Song(id: song.id))
+                        SongDetailView(song: Song(id: song.id))
                     } label: {
-                        Top10Cell(name: song.name, image_url: song.cover_image_url, play_count: song.play_count)
+                        GenericCell(name: song.name, image_url: song.cover_image_url, play_count: song.play_count)
                     }
                 }
                 .navigationTitle("Top 10 Songs")

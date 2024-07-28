@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 import AVFoundation
 
-struct SongDetail: View {
+struct SongDetailView: View {
     @State var song: Song
     @State var playingPreview = false
     @State var player: AVPlayer?

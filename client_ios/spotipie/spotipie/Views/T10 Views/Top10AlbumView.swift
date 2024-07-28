@@ -15,9 +15,9 @@ struct Top10AlbumView: View {
             List {
                 ForEach(globalData?.ten_most_played_albums ?? [], id: \.id) { album in
                     NavigationLink {
-                        AlbumDetail(album: Album(id: album.id))
+                        AlbumDetailView(album: Album(id: album.id))
                     } label: {
-                        Top10Cell(name: album.name, image_url: album.cover_image_url, play_count: album.play_count)
+                        GenericCell(name: album.name, image_url: album.cover_image_url, play_count: album.play_count)
                     }
                 }
                 .navigationTitle("Top 10 Albums")

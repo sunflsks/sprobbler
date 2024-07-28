@@ -21,14 +21,14 @@ struct ContentView: View {
                 Section(header: Text("Most Recent Scrobbles")) {
                     ForEach(globalData?.ten_most_recent_scrobbles ?? [], id: \.played_at) { song in
                         NavigationLink {
-                            SongDetail(song: Song(id: song.track_id))
+                            SongDetailView(song: Song(id: song.track_id))
                         } label: {
                             ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
                         }
                     }
                     
                     NavigationLink {
-                        SongsByTimestampView(globalData: globalData)
+                        ScrobblesByTimestampView(globalData: globalData)
                     } label: {
                         HStack {
                             Image(systemName: "music.note.list")
