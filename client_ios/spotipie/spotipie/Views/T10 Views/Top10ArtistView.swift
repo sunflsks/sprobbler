@@ -20,7 +20,7 @@ struct Top10ArtistView: View {
                         ArtistCell(name: artist.name, play_count: artist.play_count, id: artist.id)
                     }
                 }
-                .navigationTitle("Top 10 Albums")
+                .navigationTitle("Top 10 Artists")
             }
         }
     }
