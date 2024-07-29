@@ -28,7 +28,7 @@ def split_audio(input_file, output_dir):
 
         series_to_write = []
 
-        for s in range(segments):
+        for s in range(1, segments):
                 start_sample = SECONDS_PER_SEGMENT * s * sr
                 end_sample = SECONDS_PER_SEGMENT * (s+1) * sr
 
