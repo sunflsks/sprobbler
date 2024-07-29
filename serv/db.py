@@ -107,27 +107,30 @@ class Scrobble(BaseModel):
 
 
 class ten_most_played_tracks(BaseModel):
-    name = CharField(primary_key=True)
+    name = CharField()
     play_count = IntegerField()
     cover_image_url = CharField()
+    track_id = CharField(primary_key=True)
 
 
 class ten_most_played_albums(BaseModel):
-    name = CharField(primary_key=True)
+    name = CharField()
     play_count = IntegerField()
     cover_image_url = CharField()
+    id = CharField(primary_key=True)
 
 
 class ten_most_played_artists(BaseModel):
-    name = CharField(primary_key=True)
+    name = CharField()
     play_count = IntegerField()
+    id = CharField(primary_key=True)
 
 
 class ten_most_recent_scrobbles(BaseModel):
-    name = CharField(primary_key=True)
+    name = CharField()
     cover_image_url = CharField()
     played_at = DateTimeField()
-    track_id = CharField()
+    track_id = CharField(primary_key=True)
 
 
 class scrobbles_by_timestamp(BaseModel):
