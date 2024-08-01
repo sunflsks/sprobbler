@@ -43,7 +43,7 @@ struct ScrobblesByTimestampView: View {
             List {
                 ForEach(scrobbles, id: \.played_at) { song in
                     NavigationLink {
-                        SongDetailView(song: Song(id: song.track_id))
+                        SongDetailView(song: Song(id: song.id))
                     } label: {
                         ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
                     }
