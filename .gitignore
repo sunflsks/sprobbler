@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=xcode,visualstudiocode,python,swift
 
 serv/supervisord.pid
+serv/rnn/env
+serv/rnn/env.fish
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
