@@ -3,17 +3,15 @@ from peewee import fn
 
 
 class PlayedTrack:
-    def __init__(
-        self, name, cover_image_url, play_count=None, played_at=None, track_id=None
-    ):
+    def __init__(self, name, cover_image_url, play_count=None, played_at=None, id=None):
         self.name = name
         self.cover_image_url = cover_image_url
         if play_count:
             self.play_count = play_count
         if played_at:
             self.played_at = played_at
-        if track_id:
-            self.track_id = track_id
+        if id:
+            self.id = id
 
 
 class TrackScrobbleInfo:
@@ -23,46 +21,25 @@ class TrackScrobbleInfo:
         self.listening_time = listening_time
 
 
-def scrobbles_between_timestamps(start, end):
-    with db.database:
-        return [
-            PlayedTrack(**track)
-            for track in (
-                db.scrobbles_by_timestamp.select()
-                .where(
-                    start <= db.scrobbles_by_timestamp.played_at,
-                    db.scrobbles_by_timestamp.played_at <= end,
-                )
-                .dicts()
-            )
-        ]
-
-
 def scrobbles_paginated(start, count):
     with db.database:
-        return [
+        ret = [
             PlayedTrack(**track)
-            for track in (
-                db.scrobbles_by_timestamp.select()
-                .where(
-                    db.scrobbles_by_timestamp.played_at <= start,
-                )
-                .limit(count)
-                .dicts()
-            )
+            for track in db.Track.scrobbles_paginated(start, count).dicts()
         ]
+
+        return ret
 
 
 def ten_most_recent_scrobbles():
     return [
-        PlayedTrack(**track)
-        for track in (db.ten_most_recent_scrobbles.select().dicts())
+        PlayedTrack(**track) for track in (db.Track.ten_most_recent_scrobbles().dicts())
     ]
 
 
 def ten_most_played_tracks():
     return [
-        PlayedTrack(**track) for track in (db.ten_most_played_tracks.select().dicts())
+        PlayedTrack(**track) for track in (db.Track.ten_most_played_tracks().dicts())
     ]
 
 

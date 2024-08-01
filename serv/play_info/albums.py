@@ -11,5 +11,5 @@ class PlayedAlbum:
 
 def ten_most_played_albums():
     return [
-        PlayedAlbum(**album) for album in (db.ten_most_played_albums.select().dicts())
+        PlayedAlbum(**album) for album in (db.Album.ten_most_played_albums().dicts())
     ]

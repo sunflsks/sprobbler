@@ -11,5 +11,5 @@ class PlayedArtist:
 def ten_most_played_artists():
     return [
         PlayedArtist(**artist)
-        for artist in (db.ten_most_played_artists.select().dicts())
+        for artist in (db.Artist.ten_most_played_artists().dicts())
     ]

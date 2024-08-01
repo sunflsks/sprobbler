@@ -7,7 +7,7 @@ import celery
 import decimal
 
 from celery import Celery, Task
-from db import SpotifyConfig
+from db import SpotifyConfig, init_db_if_not_exists
 from config import Config
 from . import login
 from flask_dance.contrib.spotify import spotify  # type: ignore
@@ -17,7 +17,6 @@ from play_info.artists import ten_most_played_artists
 from play_info.track import (
     ten_most_played_tracks,
     scrobbles_paginated as scrobbles_paginated_internal,
-    scrobbles_between_timestamps,
     track_scrobble_info,
     ten_most_recent_scrobbles,
 )
@@ -53,6 +52,8 @@ def create_app() -> flask.Flask:
             },
         ),
     )
+
+    init_db_if_not_exists()
 
     celery_init(app)
 

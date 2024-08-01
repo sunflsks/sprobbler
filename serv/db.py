@@ -84,10 +84,43 @@ class Album(BaseModel):
     id = CharField(primary_key=True)
     cover_image_url = CharField(null=True)
 
+    @staticmethod
+    def ten_most_played_albums():
+        with database:
+            return (
+                Album.select(
+                    Album.name,
+                    Album.cover_image_url,
+                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    Album.id,
+                )
+                .join(Track, on=(Track.album == Album.id))
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .group_by(Album.name, Album.cover_image_url, Album.id)
+                .order_by(fn.COUNT(Scrobble.id).desc())
+                .limit(10)
+            )
+
 
 class Artist(BaseModel):
     name = CharField()
     id = CharField(primary_key=True)
+
+    @staticmethod
+    def ten_most_played_artists():
+        with database:
+            return (
+                Artist.select(
+                    Artist.name,
+                    fn.COUNT(Scrobble.id.distinct()).alias("play_count"),
+                    Artist.id,
+                )
+                .join(ArtistTrack, on=(Artist.id == ArtistTrack.artist))
+                .join(Scrobble, on=(Scrobble.track == ArtistTrack.track))
+                .group_by(Artist.name, Artist.id)
+                .order_by(fn.COUNT(Scrobble.id.distinct()).desc())
+                .limit(10)
+            )
 
 
 class Track(BaseModel):
@@ -100,6 +133,64 @@ class Track(BaseModel):
     predicted_genre = BinaryJSONField(null=True)
 
     @staticmethod
+    def scrobbles_by_timestamp():
+        with database:
+            return (
+                Track.select(
+                    Track.name, Album.cover_image_url, Scrobble.played_at, Track.id
+                )
+                .join(Album, on=(Scrobble.track == Album.id))
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .order_by(Scrobble.played_at.desc())
+            )
+
+    @staticmethod
+    def scrobbles_paginated(start, count):
+        with database:
+            return (
+                Track.select(
+                    Track.name, Album.cover_image_url, Scrobble.played_at, Track.id
+                )
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .join(Album, on=(Track.track == Album.id))
+                .order_by(Scrobble.played_at.desc())
+                .where(
+                    Scrobble.played_at <= start,
+                )
+                .limit(count)
+            )
+
+    @staticmethod
+    def ten_most_recent_scrobbles():
+        with database:
+            return (
+                Track.select(
+                    Track.name, Album.cover_image_url, Scrobble.played_at, Track.id
+                )
+                .join(Album, on=(Track.album == Album.id))
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .order_by(Scrobble.played_at.desc())
+                .limit(10)
+            )
+
+    @staticmethod
+    def ten_most_played_tracks():
+        with database:
+            return (
+                Track.select(
+                    Track.name,
+                    Album.cover_image_url,
+                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    Track.id,
+                )
+                .join(Album, on=(Track.album == Album.id))
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .group_by(Track.name, Album.cover_image_url, Track.id)
+                .order_by(fn.COUNT(Scrobble.id).desc())
+                .limit(10)
+            )
+
+    @staticmethod
     def set_predicted_genre(track_id, genre):
         with database:
             try:
@@ -107,6 +198,7 @@ class Track(BaseModel):
                     Track.id == track_id
                 ).execute()
                 return True
+
             except PeeweeException as e:
                 print(f"Could not update predicted genre for track: {e}")
                 return False
@@ -131,46 +223,10 @@ class Scrobble(BaseModel):
     id = IntegerField(primary_key=True)
 
 
-class ten_most_played_tracks(BaseModel):
-    name = CharField()
-    play_count = IntegerField()
-    cover_image_url = CharField()
-    track_id = CharField(primary_key=True)
-
-
-class ten_most_played_albums(BaseModel):
-    name = CharField()
-    play_count = IntegerField()
-    cover_image_url = CharField()
-    id = CharField(primary_key=True)
-
-
-class ten_most_played_artists(BaseModel):
-    name = CharField()
-    play_count = IntegerField()
-    id = CharField(primary_key=True)
-
-
-class ten_most_recent_scrobbles(BaseModel):
-    name = CharField()
-    cover_image_url = CharField()
-    played_at = DateTimeField()
-    track_id = CharField(primary_key=True)
-
-
-class scrobbles_by_timestamp(BaseModel):
-    name = CharField(primary_key=True)
-    cover_image_url = CharField()
-    played_at = DateTimeField()
-    track_id = CharField()
-
-
 def init_db_if_not_exists() -> None:
     with database:
         if not database.table_exists("spotifyconfig"):
-            print(
-                f"DB not found, initializing at {config.Config.get(config.Config.Keys.DATABASE_LOCATION)}"
-            )
+            print(f"DB not found, initializing as {dbname} with user {username}")
             database.create_tables(
                 [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
             )

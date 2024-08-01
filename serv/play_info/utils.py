@@ -19,21 +19,17 @@ class PlayedItemsJSONEncoder(json.JSONEncoder):
                 "name": o.name,
                 "play_count": o.play_count,
                 "cover_image_url": o.cover_image_url,
-                "id": o.id
+                "id": o.id,
             }
 
         if isinstance(o, PlayedArtist):
-            return {
-                "name": o.name,
-                "play_count": o.play_count,
-                "id": o.id
-            }
+            return {"name": o.name, "play_count": o.play_count, "id": o.id}
 
         if isinstance(o, PlayedTrack):
             played_track_dict = {
                 "name": o.name,
                 "cover_image_url": o.cover_image_url,
-                "id": o.track_id
+                "id": o.id,
             }
 
             for field in ("play_count", "played_at", "track_id"):
