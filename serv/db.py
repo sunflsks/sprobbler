@@ -18,14 +18,15 @@ from peewee import (
     DoesNotExist,
     PeeweeException,
 )
-from playhouse.sqlite_ext import JSONField
+from playhouse.postgres_ext import *
 from utils.scrobble import Scrobble as ScrobbleRepresentation
+import json
 
 dbname = Config().get(Config.Keys.PSQL_DB)
 username = Config().get(Config.Keys.PSQL_USER)
 password = Config().get(Config.Keys.PSQL_PASS)
 
-database = PostgresqlDatabase(dbname, user=username, password=password)
+database = PostgresqlExtDatabase(dbname, user=username, password=password)
 
 
 class BaseModel(Model):
@@ -34,7 +35,7 @@ class BaseModel(Model):
 
 
 class SpotifyConfig(BaseModel):
-    access_token = JSONField()
+    access_token = BinaryJSONField()
     name = CharField(unique=True)
 
     @staticmethod
@@ -52,6 +53,8 @@ class SpotifyConfig(BaseModel):
 
     @staticmethod
     def set_access_token(token) -> None:
+        token = dict(token)
+        print(token)
         with database:
             debugprint("setting access token")
             ret = (
@@ -90,6 +93,7 @@ class Track(BaseModel):
     popularity = IntegerField()
     duration_ms = IntegerField()
     id = CharField(primary_key=True)
+    predicted_genre = BinaryJSONField(null=True)
 
 
 class ArtistTrack(BaseModel):
@@ -190,4 +194,14 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
             return True
         except PeeweeException as e:
             print(f"Could not load scrobble into database: {e}")
+            return False
+
+
+def update_predicted_genre_for_track(track_id, genre):
+    with database:
+        try:
+            Track.update(predicted_genre=genre).where(Track.id == track_id).execute()
+            return True
+        except PeeweeException as e:
+            print(f"Could not update predicted genre for track: {e}")
             return False
