@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from doctest import debug
-from enum import unique
-from os import name
+import os
+import sys
 from re import T
 from config import Config
 from utils.utils import debugprint
 from peewee import (
-    PostgresqlDatabase,
     Model,
     CharField,
     ForeignKeyField,
@@ -20,11 +18,17 @@ from peewee import (
 )
 from playhouse.postgres_ext import *
 from utils.scrobble import Scrobble as ScrobbleRepresentation
+import requests
 import json
+import tempfile
+from celery import shared_task
+from celery.contrib import rdb
 
-dbname = Config().get(Config.Keys.PSQL_DB)
-username = Config().get(Config.Keys.PSQL_USER)
-password = Config().get(Config.Keys.PSQL_PASS)
+sys.path.append(os.getcwd())
+
+dbname = Config.get(Config.Keys.PSQL_DB)
+username = Config.get(Config.Keys.PSQL_USER)
+password = Config.get(Config.Keys.PSQL_PASS)
 
 database = PostgresqlExtDatabase(dbname, user=username, password=password)
 
@@ -95,6 +99,23 @@ class Track(BaseModel):
     id = CharField(primary_key=True)
     predicted_genre = BinaryJSONField(null=True)
 
+    @staticmethod
+    def set_predicted_genre(track_id, genre):
+        with database:
+            try:
+                Track.update(predicted_genre=genre).where(
+                    Track.id == track_id
+                ).execute()
+                return True
+            except PeeweeException as e:
+                print(f"Could not update predicted genre for track: {e}")
+                return False
+
+    @staticmethod
+    def get_predicted_genre(track_id):
+        with database:
+            return Track.get(Track.id == track_id).predicted_genre
+
 
 class ArtistTrack(BaseModel):
     artist = ForeignKeyField(Artist, to_field="id")
@@ -144,7 +165,6 @@ class scrobbles_by_timestamp(BaseModel):
     track_id = CharField()
 
 
-"""
 def init_db_if_not_exists() -> None:
     with database:
         if not database.table_exists("spotifyconfig"):
@@ -154,13 +174,11 @@ def init_db_if_not_exists() -> None:
             database.create_tables(
                 [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
             )
-"""
 
 
 def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
     with database:
         try:
-            # first insert the album into the database, if it does not already exist
             Album.insert(
                 name=scrobble.track.album.name,
                 album_type=scrobble.track.album.album_type,
@@ -168,7 +186,6 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 cover_image_url=scrobble.track.album.cover_image_url,
             ).on_conflict_ignore().execute()
 
-            # then insert the track into the database, if it does not already exist
             Track.insert(
                 name=scrobble.track.name,
                 album=scrobble.track.album.id,
@@ -178,7 +195,6 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 duration_ms=scrobble.track.duration_ms,
             ).on_conflict_ignore().execute()
 
-            # then insert the artists into the database, if they do not already exist, as well as set up artist-track relationships
             for artist in scrobble.track.artists:
                 Artist.insert(
                     name=artist.name, id=artist.id
@@ -187,21 +203,44 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                     artist=artist.id, track=scrobble.track.id
                 ).on_conflict_ignore().execute()
 
-            # finally, insert the scrobble into the database
             Scrobble.insert(
                 track=scrobble.track.id, played_at=scrobble.played_at
             ).execute()
+
+            update_predicted_genre_for_track.delay(scrobble.track.id)
+
             return True
         except PeeweeException as e:
             print(f"Could not load scrobble into database: {e}")
             return False
 
 
-def update_predicted_genre_for_track(track_id, genre):
-    with database:
-        try:
-            Track.update(predicted_genre=genre).where(Track.id == track_id).execute()
-            return True
-        except PeeweeException as e:
-            print(f"Could not update predicted genre for track: {e}")
-            return False
+@shared_task(ignore_result=True)
+def update_predicted_genre_for_track(track_id):
+    # If i try to import this at the top, I get a stack corruption error? Find out why
+    from rnn.predict import predict_genres_for_song
+
+    if Track.get_predicted_genre(track_id) is None:
+        track_info = requests.get(
+            f"http://localhost:{Config.get(Config.Keys.PORT)}/info/track/{track_id}"
+        )
+
+        preview_url = track_info.json()["preview_url"]
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            file_path = os.path.join(tempdir, "sample.mp3")
+
+            with open(file_path, "wb") as f:
+                f.write(requests.get(preview_url).content)
+
+            genres = predict_genres_for_song(file_path)
+
+        with database:
+            try:
+                Track.update(predicted_genre=genres).where(
+                    Track.id == track_id
+                ).execute()
+                return True
+            except PeeweeException as e:
+                print(f"Could not update predicted genre for track: {e}")
+                return False

@@ -101,6 +101,7 @@ def create_app() -> flask.Flask:
     def data():
         track_info = track_scrobble_info()
         output = {}
+
         try:
             output["ten_most_played_artists"] = ten_most_played_artists()
             output["ten_most_played_albums"] = ten_most_played_albums()

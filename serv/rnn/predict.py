@@ -2,17 +2,15 @@ import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-import math
 from tensorflow import keras
 import numpy as np
 import librosa
 import json
-import sys
 
 N_MFCC = 13
 SAMPLE_LEN = 5  # seconds
-MODEL_PATH = "model.keras"
-MAPPING_PATH = "mapping.json"
+MODEL_PATH = "/home/sudhip/sprobbler/src/serv/rnn/model.keras"
+MAPPING_PATH = "/home/sudhip/sprobbler/src/serv/rnn/mapping.json"
 
 
 # Given a x second MP3 file, load it and split the time series into lower(x/5) 5 second pieces.
@@ -58,12 +56,11 @@ def load_model_and_mapping(model_path=MODEL_PATH, mapping_path=MAPPING_PATH):
     return model, mapping
 
 
-if __name__ == "__main__":
-    np.set_printoptions(suppress=True)
+model, mapping = load_model_and_mapping()
 
-    model, mapping = load_model_and_mapping(MODEL_PATH)
 
-    arr, sr = split_song_into_pieces(sys.argv[1])
+def predict_genres_for_song(song_path):
+    arr, sr = split_song_into_pieces(song_path)
     all_mfccs = librosa.feature.mfcc(y=arr, sr=sr, n_mfcc=N_MFCC)
     all_mfccs = np.swapaxes(all_mfccs, 1, 2)
 
@@ -81,4 +78,5 @@ if __name__ == "__main__":
         list(map(lambda x: mapping[str(x)], idxs)) if idxs is not None else "Unknown"
     )
 
-    print(f"Predicted genre for {sys.argv[1]}: {genres}")
+    print(f"Predicted genre for {song_path}: {genres}")
+    return genres

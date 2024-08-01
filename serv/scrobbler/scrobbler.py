@@ -10,7 +10,7 @@ import requests
 from web.login import bp
 from utils.scrobble import Scrobble
 from utils.utils import debugprint
-from db import insert_scrobble_into_db
+from db import insert_scrobble_into_db, update_predicted_genre_for_track, Track
 
 # it seems a song is only registered when fully, 100 percent played; partial plays do not count
 # as a recently played song. however, if fast forwarded to the end it DOES count.
