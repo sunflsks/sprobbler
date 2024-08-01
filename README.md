@@ -2,9 +2,7 @@
 
 ## The ultimate goal of this project it to be a functional last.fm clone, except instead of a website interface it delivers the information through SwiftUI
 
-## TODO:
-- Paginate Recent Tracks
-- Right now, only Top 10 tracks are shown. Have option to paginate as well (Done)
+## TODO
 - Show top 5 most listened-to artists in the past week
 - Show top 5 most listened-to artists in the past month
 
