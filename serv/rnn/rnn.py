@@ -5,7 +5,6 @@ import sys
 import pathlib
 import numpy as np
 from tensorflow import keras
-from ..make_celery import celery
 from tensorflow.keras.layers import *
 from sklearn.model_selection import train_test_split
 
