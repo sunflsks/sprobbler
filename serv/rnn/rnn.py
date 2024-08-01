@@ -5,8 +5,10 @@ import sys
 import pathlib
 import numpy as np
 from tensorflow import keras
+from ..make_celery import celery
 from tensorflow.keras.layers import *
 from sklearn.model_selection import train_test_split
+
 
 def consolidate_genre_arrays(array_genre_dict):
     # Map each genre to a number (based on its position in the dict), and create a numpy array of dimension (a[:-1], 1)
@@ -32,23 +34,43 @@ def consolidate_genre_arrays(array_genre_dict):
 
     return x, y, mapping
 
+
 def model_blueprint(shape, num_of_genres):
-    return keras.Sequential([
-        Input(shape),
+    return keras.Sequential(
+        [
+            Input(shape),
+            Bidirectional(
+                LSTM(
+                    512,
+                    return_sequences=True,
+                    kernel_regularizer=keras.regularizers.l2(0.01),
+                )
+            ),
+            Bidirectional(
+                LSTM(
+                    256,
+                    return_sequences=True,
+                    kernel_regularizer=keras.regularizers.l2(0.01),
+                )
+            ),
+            Bidirectional(
+                LSTM(
+                    256,
+                    return_sequences=False,
+                    kernel_regularizer=keras.regularizers.l2(0.01),
+                )
+            ),
+            Dense(256, activation="relu"),
+            Dropout(0.3),
+            Dense(num_of_genres, activation="softmax"),
+        ]
+    )
 
-        Bidirectional(LSTM(512, return_sequences=True, kernel_regularizer=keras.regularizers.l2(0.01))),
-        Bidirectional(LSTM(256, return_sequences=True, kernel_regularizer=keras.regularizers.l2(0.01))),
-        Bidirectional(LSTM(256, return_sequences=False, kernel_regularizer=keras.regularizers.l2(0.01))),
-        
-        Dense(256, activation='relu'),
-        Dropout(0.3),
-
-        Dense(num_of_genres, activation="softmax")
-    ])
 
 def make_sets(X, y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     return X_train, X_test, y_train, y_test
+
 
 if __name__ == "__main__":
     array_genre_dict = {}
@@ -72,13 +94,24 @@ if __name__ == "__main__":
 
     model = model_blueprint(X.shape[1:], len(array_genre_dict))
 
-    model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    model.compile(
+        optimizer=optimizer,
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"],
+    )
 
-    model.fit(x=X_train, y=y_train, epochs=25, validation_data=(X_test, y_test), batch_size=128, callbacks=[keras.callbacks.EarlyStopping(patience=3, verbose=1)])
+    model.fit(
+        x=X_train,
+        y=y_train,
+        epochs=25,
+        validation_data=(X_test, y_test),
+        batch_size=128,
+        callbacks=[keras.callbacks.EarlyStopping(patience=3, verbose=1)],
+    )
 
     model.evaluate(x=X_validate, y=y_validate)
 
-    model.save('model.keras')
-    
-    with open('mapping.json', 'w') as output:
+    model.save("model.keras")
+
+    with open("mapping.json", "w") as output:
         json.write(output, mapping)
