@@ -56,10 +56,7 @@ def load_model_and_mapping(model_path=MODEL_PATH, mapping_path=MAPPING_PATH):
     return model, mapping
 
 
-model, mapping = load_model_and_mapping()
-
-
-def predict_genres_for_song(song_path):
+def predict_genres_for_song(song_path, model, mapping):
     arr, sr = split_song_into_pieces(song_path)
     all_mfccs = librosa.feature.mfcc(y=arr, sr=sr, n_mfcc=N_MFCC)
     all_mfccs = np.swapaxes(all_mfccs, 1, 2)

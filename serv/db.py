@@ -19,10 +19,11 @@ from peewee import (
 from playhouse.postgres_ext import *
 from utils.scrobble import Scrobble as ScrobbleRepresentation
 import requests
-import json
+import os
 import tempfile
-from celery import shared_task
-from celery.contrib import rdb
+from celery import shared_task, Task
+from rnn.predict import predict_genres_for_song, load_model_and_mapping
+from peewee import PeeweeException
 
 sys.path.append(os.getcwd())
 
@@ -271,10 +272,20 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
             return False
 
 
-@shared_task(ignore_result=True)
-def update_predicted_genre_for_track(track_id):
-    # If i try to import this at the top, I get a stack corruption error? Find out why
-    from rnn.predict import predict_genres_for_song
+class RNNTask(Task):
+    _mappings = None
+
+    @property
+    def model_and_mapping(self):
+        if self._mappings == None:
+            self._mappings = load_model_and_mapping()
+        return self._mappings
+
+
+@shared_task(ignore_result=True, bind=True, base=RNNTask)
+def update_predicted_genre_for_track(self, track_id):
+
+    model, mapping = self.model_and_mapping
 
     if Track.get_predicted_genre(track_id) is None:
         track_info = requests.get(
@@ -289,7 +300,7 @@ def update_predicted_genre_for_track(track_id):
             with open(file_path, "wb") as f:
                 f.write(requests.get(preview_url).content)
 
-            genres = predict_genres_for_song(file_path)
+            genres = predict_genres_for_song(file_path, model, mapping)
 
         with database:
             try:
