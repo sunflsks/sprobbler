@@ -28,6 +28,7 @@ struct AlbumDetailView: View {
     @State var album: Album
     @State var playingPreview = false
     @State var frameBounding: CGSize?
+    @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
     var body: some View {
         GeometryReader { reader in
@@ -87,7 +88,7 @@ struct AlbumDetailView: View {
                 }
             }.onAppear {
                 Task {
-                    try await album.load()
+                    try await album.load(base_url: url)
                 }
             }
         }

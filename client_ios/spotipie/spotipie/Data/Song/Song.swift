@@ -18,8 +18,8 @@ struct Song: Decodable {
     
     var album: Album?
     
-    mutating func load() async throws {
-        let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string:  "/info/track/" + id, relativeTo: REMOTE_URL)!)
+    mutating func load(base_url: URL) async throws {
+        let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string:  "/info/track/" + id, relativeTo: base_url) ?? URL(string: DEFAULT_URL)! )
         
         guard (response as! HTTPURLResponse).statusCode == 200 else {
             return

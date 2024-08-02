@@ -13,6 +13,7 @@ struct ScrobblesByTimestampView: View {
     @State var globalData: GlobalData?
     @State var scrobbles: [GlobalData.Scrobble]
     @State var isLoading: Bool = false
+    @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
     init(globalData: GlobalData? = nil) {
         self.globalData = globalData
@@ -25,7 +26,7 @@ struct ScrobblesByTimestampView: View {
         guard let beginningDate = dateFromISO(str: scrobbles.last?.played_at ?? "") else { return }
         
         let remoteURLString = "/scrobbles_paginated?from=\(Int(beginningDate.timeIntervalSince1970))&count=\(ADDITIONAL_SONG_COUNT)"
-        let remoteURL = URL(string: remoteURLString, relativeTo: REMOTE_URL)!
+        let remoteURL = URL(string: remoteURLString, relativeTo: url) ?? URL(string: DEFAULT_URL)!
         
         guard let (data, response) = try? await URLSessionManager.normalSessionManager.data(from: remoteURL) else { return }
         

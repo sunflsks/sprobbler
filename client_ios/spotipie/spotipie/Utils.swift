@@ -7,7 +7,7 @@
 
 import Foundation
 
-let REMOTE_URL = URL(string: "https://sprobbler.sudhip.com")!
+let DEFAULT_URL = "https://example.com" // some placeholder
 
 struct URLSessionManager {
     static let cachedSessionManager: URLSession = {

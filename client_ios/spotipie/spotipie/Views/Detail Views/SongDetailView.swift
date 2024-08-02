@@ -14,6 +14,7 @@ struct SongDetailView: View {
     @State var playingPreview = false
     @State var player: AVPlayer?
     @State var frameBounding: CGSize?
+    @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
     var body: some View {
         ScrollView {
@@ -68,7 +69,7 @@ struct SongDetailView: View {
             .frame(width:frameBounding?.width)
         }.onAppear {
             Task {
-                try await song.load()
+                try await song.load(base_url: url)
             }
         }.environment(\EnvironmentValues.refresh as! WritableKeyPath<EnvironmentValues, RefreshAction?>, nil)
     }

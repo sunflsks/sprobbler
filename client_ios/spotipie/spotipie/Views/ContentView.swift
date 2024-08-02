@@ -10,9 +10,10 @@ import SwiftUI
 
 struct ContentView: View {
     @State var globalData: GlobalData?
+    @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
     func refreshData() async {
-        globalData = try? await GlobalData.getGlobalData()
+        globalData = try? await GlobalData.getGlobalData(base_url: url)
     }
     
     var body: some View {
@@ -82,6 +83,23 @@ struct ContentView: View {
                                 .cornerRadius(5)
                             
                             Text("Tracks")
+                        }
+                    }
+                }
+                
+                
+                Section(header: Text("Settings")) {
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "gear")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 40, height: 40)
+                                .cornerRadius(5)
+                            
+                            Text("Settings")
                         }
                     }
                 }

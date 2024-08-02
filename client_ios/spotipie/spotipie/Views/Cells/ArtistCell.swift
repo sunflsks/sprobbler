@@ -13,6 +13,7 @@ struct ArtistCell : View {
     @State var image_url: URL?
     @State var play_count: Int
     @State var id: String
+    @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
     let formatter = DateFormatter()
     
@@ -36,7 +37,7 @@ struct ArtistCell : View {
             }
         }.onAppear {
             Task {
-                let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: "/info/artist/" + id, relativeTo: REMOTE_URL)!)
+                let (data, response) = try await URLSessionManager.cachedSessionManager.data(from: URL(string: "/info/artist/" + id, relativeTo: url) ?? URL(string: DEFAULT_URL)!)
                 
                 guard (response as! HTTPURLResponse).statusCode == 200 else {
                     return
