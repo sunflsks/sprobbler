@@ -9,7 +9,7 @@ import decimal
 from celery import Celery, Task
 from db import SpotifyConfig, init_db_if_not_exists
 from config import Config
-from . import login
+from .blueprints import login
 from flask_dance.contrib.spotify import spotify  # type: ignore
 from play_info.utils import PlayedItemsJSONEncoder
 from play_info.albums import ten_most_played_albums

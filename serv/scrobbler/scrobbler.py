@@ -7,7 +7,7 @@ from celery.utils.log import get_task_logger
 from datetime import datetime
 
 import requests
-from web.login import bp
+from web.blueprints.login import bp
 from utils.scrobble import Scrobble
 from utils.utils import debugprint
 from db import insert_scrobble_into_db, update_predicted_genre_for_track, Track
