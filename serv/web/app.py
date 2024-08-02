@@ -50,6 +50,10 @@ def create_app() -> flask.Flask:
                     "schedule": Config.get(Config.Keys.SCROBBLE_INTERVAL) or 60,
                 }
             },
+            task_routes={
+                "db.update_predicted_genre_for_track": {"queue": "rnn_queue"},
+                "scrobbler.scrobbler.start_scrobbler": {"queue": "scrobbler_queue"},
+            },
         ),
     )
 

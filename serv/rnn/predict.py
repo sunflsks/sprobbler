@@ -49,6 +49,8 @@ def get_idxs_from_prediction(prediction, mapping, sample_cnt):
 
 
 def load_model_and_mapping(model_path=MODEL_PATH, mapping_path=MAPPING_PATH):
+    print("Loading model...")
+
     model = keras.models.load_model(model_path)
     with open(mapping_path, "r") as file:
         mapping = json.load(file)
