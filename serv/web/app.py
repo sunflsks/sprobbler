@@ -1,27 +1,21 @@
 import json
-import os
 import flask
 from flask import g
 from peewee import PeeweeException
-import celery
 import decimal
 
 from celery import Celery, Task
 from db import SpotifyConfig, init_db_if_not_exists
 from config import Config
-from .blueprints import login
+from web.blueprints import login, info, reports
 from flask_dance.contrib.spotify import spotify  # type: ignore
 from play_info.utils import PlayedItemsJSONEncoder
-from play_info.albums import ten_most_played_albums
-from play_info.artists import ten_most_played_artists
 from play_info.track import (
-    ten_most_played_tracks,
     scrobbles_paginated as scrobbles_paginated_internal,
     track_scrobble_info,
     ten_most_recent_scrobbles,
 )
 from scrobbler import scrobbler  # this is needed for celery-beat! don't delete
-from web.blueprints.info import info_bp, track
 import datetime
 
 
@@ -37,6 +31,7 @@ def create_app() -> flask.Flask:
     app = flask.Flask(
         __name__, instance_relative_config=True, template_folder="./templates"
     )
+
     app.config.from_mapping(
         SECRET_KEY=Config.get(Config.Keys.CLIENT_SECRET),
         DATABASE=Config.get(Config.Keys.DATABASE_LOCATION),
@@ -62,7 +57,8 @@ def create_app() -> flask.Flask:
     celery_init(app)
 
     app.register_blueprint(login.bp, url_prefix="/login")
-    app.register_blueprint(info_bp, url_prefix="/info")
+    app.register_blueprint(info.bp, url_prefix="/info")
+    app.register_blueprint(reports.bp, url_prefix="/reports")
 
     @app.route("/")
     def root():
@@ -108,9 +104,6 @@ def create_app() -> flask.Flask:
         output = {}
 
         try:
-            output["ten_most_played_artists"] = ten_most_played_artists()
-            output["ten_most_played_albums"] = ten_most_played_albums()
-            output["ten_most_played_tracks"] = ten_most_played_tracks()
             output["ten_most_recent_scrobbles"] = ten_most_recent_scrobbles()
             output["scrobble_count"] = track_info.scrobble_count
             output["track_count"] = track_info.track_count

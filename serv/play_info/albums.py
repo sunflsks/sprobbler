@@ -9,7 +9,14 @@ class PlayedAlbum:
         self.id = id
 
 
-def ten_most_played_albums():
+def ten_most_played_albums_past_days(days=30):
+    if days is None:
+        return [
+            PlayedAlbum(**album)
+            for album in (db.Album.ten_most_played_albums().dicts())
+        ]
+
     return [
-        PlayedAlbum(**album) for album in (db.Album.ten_most_played_albums().dicts())
+        PlayedAlbum(**album)
+        for album in (db.Album.ten_most_played_albums_past_days(days).dicts())
     ]

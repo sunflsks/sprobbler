@@ -24,6 +24,7 @@ import tempfile
 from celery import shared_task, Task
 from rnn.predict import predict_genres_for_song, load_model_and_mapping
 from peewee import PeeweeException
+import datetime
 
 sys.path.append(os.getcwd())
 
@@ -102,6 +103,27 @@ class Album(BaseModel):
                 .limit(10)
             )
 
+    @staticmethod
+    def ten_most_played_albums_past_days(days=30):
+        with database:
+            return (
+                Album.select(
+                    Album.name,
+                    Album.cover_image_url,
+                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    Album.id,
+                )
+                .join(Track, on=(Track.album == Album.id))
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .group_by(Album.name, Album.cover_image_url, Album.id)
+                .where(
+                    Scrobble.played_at
+                    > (datetime.datetime.now() - datetime.timedelta(days=days))
+                )
+                .order_by(fn.COUNT(Scrobble.id).desc())
+                .limit(10)
+            )
+
 
 class Artist(BaseModel):
     name = CharField()
@@ -118,6 +140,26 @@ class Artist(BaseModel):
                 )
                 .join(ArtistTrack, on=(Artist.id == ArtistTrack.artist))
                 .join(Scrobble, on=(Scrobble.track == ArtistTrack.track))
+                .group_by(Artist.name, Artist.id)
+                .order_by(fn.COUNT(Scrobble.id.distinct()).desc())
+                .limit(10)
+            )
+
+    @staticmethod
+    def ten_most_played_artists_past_days(days=30):
+        with database:
+            return (
+                Artist.select(
+                    Artist.name,
+                    fn.COUNT(Scrobble.id.distinct()).alias("play_count"),
+                    Artist.id,
+                )
+                .join(ArtistTrack, on=(Artist.id == ArtistTrack.artist))
+                .join(Scrobble, on=(Scrobble.track == ArtistTrack.track))
+                .where(
+                    Scrobble.played_at
+                    > (datetime.datetime.now() - datetime.timedelta(days=days))
+                )
                 .group_by(Artist.name, Artist.id)
                 .order_by(fn.COUNT(Scrobble.id.distinct()).desc())
                 .limit(10)
@@ -187,6 +229,27 @@ class Track(BaseModel):
                 .join(Album, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Track.name, Album.cover_image_url, Track.id)
+                .order_by(fn.COUNT(Scrobble.id).desc())
+                .limit(10)
+            )
+
+    @staticmethod
+    def ten_most_played_tracks_past_days(days=30):
+        with database:
+            return (
+                Track.select(
+                    Track.name,
+                    Album.cover_image_url,
+                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    Track.id,
+                )
+                .join(Album, on=(Track.album == Album.id))
+                .join(Scrobble, on=(Scrobble.track == Track.id))
+                .group_by(Track.name, Album.cover_image_url, Track.id)
+                .where(
+                    Scrobble.played_at
+                    > (datetime.datetime.now() - datetime.timedelta(days=days))
+                )
                 .order_by(fn.COUNT(Scrobble.id).desc())
                 .limit(10)
             )

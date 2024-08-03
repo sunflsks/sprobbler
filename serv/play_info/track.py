@@ -37,10 +37,18 @@ def ten_most_recent_scrobbles():
     ]
 
 
-def ten_most_played_tracks():
-    return [
-        PlayedTrack(**track) for track in (db.Track.ten_most_played_tracks().dicts())
-    ]
+def ten_most_played_tracks_past_days(days=30):
+    with db.database:
+        if days is None:
+            return [
+                PlayedTrack(**track)
+                for track in (db.Track.ten_most_played_tracks().dicts())
+            ]
+
+        return [
+            PlayedTrack(**track)
+            for track in (db.Track.ten_most_played_tracks_past_days(days).dicts())
+        ]
 
 
 def track_scrobble_info():

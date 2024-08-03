@@ -8,7 +8,7 @@ from flask_dance.contrib.spotify import spotify  # type: ignore
 # since we use the json returned by spotify directly on the client, we can just have one wrapper
 # function for all the info endpoints, and just return the json directly from the spotify API
 
-info_bp = Blueprint("info", __name__)
+bp = Blueprint("info", __name__)
 err_string = "ERROR: Could not complete request"
 
 
@@ -30,17 +30,19 @@ def get_value_from_spotify(url: str) -> tuple | dict:
         return {}
 
 
-@info_bp.route("/")
+@bp.route("/")
 def root():
     return "available options are album, track, artist"
 
 
 # Inject predicted genre from DB
-@info_bp.route("/track/<string:track_id>")
+@bp.route("/track/<string:track_id>")
 def track(track_id):
     with db.database:
         try:
-            predicted_genres = db.Track.get(db.Track.id == track_id.strip()).predicted_genre 
+            predicted_genres = db.Track.get(
+                db.Track.id == track_id.strip()
+            ).predicted_genre
         except db.DoesNotExist:
             predicted_genres = None
 
@@ -48,15 +50,17 @@ def track(track_id):
     if not isinstance(response, dict):
         return response
 
-    response["predicted_genres"] = predicted_genres if predicted_genres is not None else []
+    response["predicted_genres"] = (
+        predicted_genres if predicted_genres is not None else []
+    )
     return response
 
 
-@info_bp.route("/album/<string:album_id>")
+@bp.route("/album/<string:album_id>")
 def album(album_id):
     return get_value_from_spotify(f"/v1/albums/{album_id}")
 
 
-@info_bp.route("/artist/<string:artist_id>")
+@bp.route("/artist/<string:artist_id>")
 def artist(artist_id):
     return get_value_from_spotify(f"/v1/artists/{artist_id}")
