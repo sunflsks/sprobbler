@@ -113,28 +113,6 @@ def create_app() -> flask.Flask:
         except (TypeError, PeeweeException) as e:
             return f"Error: {e}"
 
-    @app.route("/scrobbles_between")
-    def scrobbles_between():
-        start = flask.request.args.get("start")
-        end = flask.request.args.get("end")
-
-        if start is None or end is None:
-            return "Invalid timestamp"
-
-        try:
-            start_timestamp = datetime.datetime.fromtimestamp(int(start))
-            end_timestamp = datetime.datetime.fromtimestamp(int(end))
-        except (ValueError, OverflowError) as e:
-            return f"Invalid timestamp: {e}"
-
-        try:
-            return json.dumps(
-                scrobbles_between_timestamps(start_timestamp, end_timestamp),
-                cls=PlayedItemsJSONEncoder,
-            )
-        except (TypeError, PeeweeException) as e:
-            return f"Error: {e}"
-
     @app.route("/scrobbles_paginated")
     def scrobbles_paginated():
         start = flask.request.args.get("from")
