@@ -153,7 +153,7 @@ class Track(BaseModel):
                     Track.name, Album.cover_image_url, Scrobble.played_at, Track.id
                 )
                 .join(Scrobble, on=(Scrobble.track == Track.id))
-                .join(Album, on=(Track.track == Album.id))
+                .join(Album, on=(Track.album == Album.id))
                 .order_by(Scrobble.played_at.desc())
                 .where(
                     Scrobble.played_at <= start,
