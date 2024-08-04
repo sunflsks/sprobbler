@@ -21,6 +21,14 @@ struct URLSessionManager {
     }()
 }
 
+func isoToString(str: String) -> String? {
+    guard let date = dateFromISO(str: str) else {
+        return nil
+    }
+    
+    return dateToString(date: date)
+}
+
 func dateToString(date: Date) -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MMM d, y HH:mm:ss"

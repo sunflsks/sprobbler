@@ -7,6 +7,19 @@
 
 import SwiftUI
 
+struct StatCell: View {
+    @State var title: String
+    @State var value: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(value)
+        }
+    }
+}
+
 struct ReportView: View {
     @State var report: Report
     @State var title: String
@@ -14,6 +27,19 @@ struct ReportView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section("Stats") {
+                    let timeInterval = TimeInterval(report.stats.listening_time_ms/1000)
+                    StatCell(title: "Avg. Scrobble/Day", value: String(report.stats.avg_scrobbles_per_day))
+                    StatCell(title: "Listening Time", value: String(format: "%d hr %d min", timeInterval.hour, timeInterval.second))
+                    StatCell(title: "Num. Artists", value: String(report.stats.num_artists))
+                    StatCell(title: "Num. Albums", value: String(report.stats.num_albums))
+                    StatCell(title: "Num. Tracks", value: String(report.stats.num_tracks))
+                    
+                    Section("Busiest Day") {
+                        StatCell(title: "Date", value: isoToString(str: report.stats.highest_day.date) ?? "")
+                        StatCell(title: "Play Count", value: String(report.stats.highest_day.play_count))
+                    }
+                }
                 Section("Most Played Songs") {
                     ForEach(report.ten_most_played_tracks, id: \.id) { song in
                         NavigationLink {

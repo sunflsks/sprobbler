@@ -29,11 +29,26 @@ struct Report : Decodable, Identifiable {
         }
     }
     
+    struct Stats: Decodable {
+        struct HighestDayStats: Decodable {
+            let date: String
+            let play_count: Int
+        }
+        
+        let avg_scrobbles_per_day: Int
+        let listening_time_ms: Int
+        let num_artists: Int
+        let num_albums: Int
+        let num_tracks: Int
+        let highest_day: HighestDayStats
+    }
+
     private enum CodingKeys: String, CodingKey {
         case ten_most_played_artists
         case ten_most_played_albums
         case ten_most_played_tracks
         case report_type
+        case stats
     }
     
     let id = UUID()
@@ -43,6 +58,7 @@ struct Report : Decodable, Identifiable {
     let ten_most_played_albums: [PlayedItem]
     let ten_most_played_tracks: [PlayedItem]
     let report_type: String
+    let stats: Stats
     
     static func load(base_url: URL, time: times) async throws -> Report? {
         let (data, response) = try await URLSessionManager.normalSessionManager.data(from: URL(string: "/reports/" + time.rawValue, relativeTo: base_url) ?? URL(string: DEFAULT_URL)!)
