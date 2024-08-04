@@ -1,4 +1,5 @@
 import db
+import datetime
 from peewee import fn
 
 
@@ -37,9 +38,9 @@ def ten_most_recent_scrobbles():
     ]
 
 
-def ten_most_played_tracks_past_days(days=30):
+def ten_most_played_tracks_timedelta(starting=datetime.datetime.now(), timedelta=None):
     with db.database:
-        if days is None:
+        if timedelta is None:
             return [
                 PlayedTrack(**track)
                 for track in (db.Track.ten_most_played_tracks().dicts())
@@ -47,7 +48,11 @@ def ten_most_played_tracks_past_days(days=30):
 
         return [
             PlayedTrack(**track)
-            for track in (db.Track.ten_most_played_tracks_past_days(days).dicts())
+            for track in (
+                db.Track.ten_most_played_tracks_timedelta(
+                    starting=starting, timedelta=timedelta
+                ).dicts()
+            )
         ]
 
 

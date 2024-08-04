@@ -1,4 +1,5 @@
 import db
+import datetime
 
 
 class PlayedArtist:
@@ -8,9 +9,9 @@ class PlayedArtist:
         self.id = id
 
 
-def ten_most_played_artists_past_days(days=30):
+def ten_most_played_artists_timedelta(starting=datetime.datetime.now(), timedelta=None):
     with db.database:
-        if days is None:
+        if timedelta is None:
             return [
                 PlayedArtist(**artist)
                 for artist in (db.Artist.ten_most_played_artists().dicts())
@@ -18,5 +19,9 @@ def ten_most_played_artists_past_days(days=30):
 
         return [
             PlayedArtist(**artist)
-            for artist in (db.Artist.ten_most_played_artists_past_days(days).dicts())
+            for artist in (
+                db.Artist.ten_most_played_artists_timedelta(
+                    starting=starting, timedelta=timedelta
+                ).dicts()
+            )
         ]

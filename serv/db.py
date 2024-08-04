@@ -104,7 +104,9 @@ class Album(BaseModel):
             )
 
     @staticmethod
-    def ten_most_played_albums_past_days(days=30):
+    def ten_most_played_albums_timedelta(
+        starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+    ):
         with database:
             return (
                 Album.select(
@@ -116,10 +118,7 @@ class Album(BaseModel):
                 .join(Track, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Album.name, Album.cover_image_url, Album.id)
-                .where(
-                    Scrobble.played_at
-                    > (datetime.datetime.now() - datetime.timedelta(days=days))
-                )
+                .where(Scrobble.played_at > (starting - timedelta))
                 .order_by(fn.COUNT(Scrobble.id).desc())
                 .limit(10)
             )
@@ -146,7 +145,9 @@ class Artist(BaseModel):
             )
 
     @staticmethod
-    def ten_most_played_artists_past_days(days=30):
+    def ten_most_played_artists_timedelta(
+        starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+    ):
         with database:
             return (
                 Artist.select(
@@ -156,10 +157,7 @@ class Artist(BaseModel):
                 )
                 .join(ArtistTrack, on=(Artist.id == ArtistTrack.artist))
                 .join(Scrobble, on=(Scrobble.track == ArtistTrack.track))
-                .where(
-                    Scrobble.played_at
-                    > (datetime.datetime.now() - datetime.timedelta(days=days))
-                )
+                .where(Scrobble.played_at > (starting - timedelta))
                 .group_by(Artist.name, Artist.id)
                 .order_by(fn.COUNT(Scrobble.id.distinct()).desc())
                 .limit(10)
@@ -234,7 +232,9 @@ class Track(BaseModel):
             )
 
     @staticmethod
-    def ten_most_played_tracks_past_days(days=30):
+    def ten_most_played_tracks_timedelta(
+        starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+    ):
         with database:
             return (
                 Track.select(
@@ -246,10 +246,7 @@ class Track(BaseModel):
                 .join(Album, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Track.name, Album.cover_image_url, Track.id)
-                .where(
-                    Scrobble.played_at
-                    > (datetime.datetime.now() - datetime.timedelta(days=days))
-                )
+                .where(Scrobble.played_at > (starting - timedelta))
                 .order_by(fn.COUNT(Scrobble.id).desc())
                 .limit(10)
             )
@@ -287,7 +284,13 @@ class Scrobble(BaseModel):
     id = IntegerField(primary_key=True)
 
 
-def stats_for_day_range(days=30):
+def stats_for_timedelta(
+    starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+):
+    if timedelta is None:
+        # seconds since epoch
+        timedelta = datetime.timedelta(seconds=datetime.datetime.now().timestamp())
+
     with database:
         highest_day_stats = (
             Scrobble.select(
@@ -296,47 +299,29 @@ def stats_for_day_range(days=30):
             )
             .group_by(fn.DATE_TRUNC("day", Scrobble.played_at))
             .order_by(fn.COUNT(Scrobble.id).desc())
-            .where(
-                Scrobble.played_at
-                > (datetime.datetime.now() - datetime.timedelta(days=days))
-            )
+            .where(Scrobble.played_at > (starting - timedelta))
             .first()
         )
 
         stats = {
             "avg_scrobbles_per_day": round(
                 Scrobble.select()
-                .where(
-                    Scrobble.played_at
-                    > (datetime.datetime.now() - datetime.timedelta(days=days))
-                )
+                .where(Scrobble.played_at > (starting - timedelta))
                 .count()
-                / days
+                / timedelta.days,
             ),
             "listening_time_ms": Scrobble.select(fn.SUM(Track.duration_ms))
             .join(Track)
-            .where(
-                Scrobble.played_at
-                > (datetime.datetime.now() - datetime.timedelta(days=days))
-            )
+            .where(Scrobble.played_at > (starting - timedelta))
             .scalar(),
             "num_artists": Scrobble.select(fn.DISTINCT(Artist.id))
-            .where(
-                Scrobble.played_at
-                > (datetime.datetime.now() - datetime.timedelta(days=days))
-            )
+            .where(Scrobble.played_at > (starting - timedelta))
             .count(),
             "num_albums": Scrobble.select(fn.DISTINCT(Album.id))
-            .where(
-                Scrobble.played_at
-                > (datetime.datetime.now() - datetime.timedelta(days=days))
-            )
+            .where(Scrobble.played_at > (starting - timedelta))
             .count(),
             "num_tracks": Scrobble.select(fn.DISTINCT(Track.id))
-            .where(
-                Scrobble.played_at
-                > (datetime.datetime.now() - datetime.timedelta(days=days))
-            )
+            .where(Scrobble.played_at > (starting - timedelta))
             .count(),
             "highest_day": {
                 "date": highest_day_stats.day,

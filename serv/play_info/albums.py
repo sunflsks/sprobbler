@@ -1,4 +1,5 @@
 import db
+import datetime
 
 
 class PlayedAlbum:
@@ -9,8 +10,8 @@ class PlayedAlbum:
         self.id = id
 
 
-def ten_most_played_albums_past_days(days=30):
-    if days is None:
+def ten_most_played_albums_timedelta(starting=datetime.datetime.now(), timedelta=None):
+    if timedelta is None:
         return [
             PlayedAlbum(**album)
             for album in (db.Album.ten_most_played_albums().dicts())
@@ -18,5 +19,9 @@ def ten_most_played_albums_past_days(days=30):
 
     return [
         PlayedAlbum(**album)
-        for album in (db.Album.ten_most_played_albums_past_days(days).dicts())
+        for album in (
+            db.Album.ten_most_played_albums_timedelta(
+                starting=starting, timedelta=timedelta
+            ).dicts()
+        )
     ]
