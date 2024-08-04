@@ -44,6 +44,7 @@ struct ReportView: View {
                     }
                 }
             }
+            .animation(.snappy, value: report.id)
             .navigationTitle(title)
         }
     }

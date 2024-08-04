@@ -94,6 +94,7 @@ struct ContentView: View {
                     }
                 }
             }
+            .animation(.snappy, value: UUID())
             .navigationTitle("Spotipie")
         }
         .task {

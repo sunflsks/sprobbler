@@ -58,6 +58,7 @@ struct ScrobblesByTimestampView: View {
                 }
                 .navigationTitle("All Scrobbles")
             }
+            .animation(.snappy, value: scrobbles)
         }
     }
 }
