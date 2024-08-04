@@ -63,6 +63,15 @@ struct SongDetailView: View {
                         .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
                         .font(.subheadline)
                 }
+                
+                if let predicted_genres = song.predicted_genres {
+                    if predicted_genres.count != 0 {
+                        let predicted_genres_string = predicted_genres.joined(separator: ", ")
+                        Text("Predicted Genres: " + predicted_genres_string)
+                            .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+                            .font(.subheadline)
+                    }
+                }
 
                 Spacer()
             }

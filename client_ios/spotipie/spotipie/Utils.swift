@@ -54,3 +54,9 @@ extension TimeInterval {
         Int((self*1000).truncatingRemainder(dividingBy: 1000))
     }
 }
+
+extension String {
+    func trim() -> String {
+        return self.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}

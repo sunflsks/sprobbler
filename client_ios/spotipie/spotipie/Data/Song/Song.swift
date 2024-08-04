@@ -15,6 +15,7 @@ struct Song: Decodable {
     var is_local: Bool?
     var preview_url: URL?
     var explicit: Bool?
+    var predicted_genres: [String]?
     
     var album: Album?
     

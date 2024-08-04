@@ -11,7 +11,7 @@ let ADDITIONAL_SONG_COUNT = 20
 
 struct ScrobblesByTimestampView: View {
     @State var globalData: GlobalData?
-    @State var scrobbles: [GlobalData.Scrobble]
+    @State var scrobbles: [Scrobble]
     @State var isLoading: Bool = false
     @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
@@ -32,7 +32,7 @@ struct ScrobblesByTimestampView: View {
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { return }
         
-        guard let new_songs = try? JSONDecoder().decode([GlobalData.Scrobble].self, from: data) else { return }
+        guard let new_songs = try? JSONDecoder().decode([Scrobble].self, from: data) else { return }
         
         isLoading = false
         

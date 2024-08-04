@@ -10,10 +10,22 @@ import SwiftUI
 
 struct ContentView: View {
     @State var globalData: GlobalData?
+    
+    @State var weeklyReport: Report?
+    @State var monthlyReport: Report?
+    @State var yearlyReport: Report?
+    @State var allTimeReport: Report?
+    
     @AppStorage("remote_url") var url: URL = URL(string: DEFAULT_URL)!
     
     func refreshData() async {
         globalData = try? await GlobalData.getGlobalData(base_url: url)
+        
+        weeklyReport = try? await Report.load(base_url: url, time: .week)
+        monthlyReport = try? await Report.load(base_url: url, time: .month)
+        yearlyReport = try? await Report.load(base_url: url, time: .year)
+        allTimeReport = try? await Report.load(base_url: url, time: .allTime)
+
     }
     
     var body: some View {
@@ -43,48 +55,26 @@ struct ContentView: View {
                     }
                 }
                 
-                Section(header: Text("Most Played - All Time")) {
-                    NavigationLink {
-                        Top10ArtistView(globalData: globalData)
-                    } label: {
-                        HStack {
-                            Image(systemName: "music.mic")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .cornerRadius(5)
+                Section(header: Text("Reports" )) {
+                    ForEach([weeklyReport, monthlyReport, yearlyReport, allTimeReport], id: \.?.id) { value in
+                        if let report = value, let unwrappedTime = report.time {
+                            let title = Report.times.label(time: unwrappedTime).trim()
                             
-                            Text("Artists")
+                                NavigationLink {
+                                    ReportView(report: report, title: title)
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "list.dash")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40, height: 40)
+                                            .cornerRadius(5)
+                                        
+                                        Text(title)
+                                    }
+                                }
+                            }
                         }
-                    }
-                    
-                    NavigationLink {
-                        Top10AlbumView(globalData: globalData)
-                    } label: {
-                        HStack {
-                            Image(systemName: "person.2.crop.square.stack")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .cornerRadius(5)
-                            
-                            Text("Albums")
-                        }
-                    }
-                    
-                    NavigationLink {
-                        Top10SongView(globalData: globalData)
-                    } label: {
-                        HStack {
-                            Image(systemName: "music.quarternote.3")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40, height: 40)
-                                .cornerRadius(5)
-                            
-                            Text("Tracks")
-                        }
-                    }
                 }
                 
                 
