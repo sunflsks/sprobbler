@@ -287,6 +287,66 @@ class Scrobble(BaseModel):
     id = IntegerField(primary_key=True)
 
 
+def stats_for_day_range(days=30):
+    with database:
+        highest_day_stats = (
+            Scrobble.select(
+                fn.COUNT(Scrobble.id).alias("play_count"),
+                fn.DATE_TRUNC("day", Scrobble.played_at).alias("day"),
+            )
+            .group_by(fn.DATE_TRUNC("day", Scrobble.played_at))
+            .order_by(fn.COUNT(Scrobble.id).desc())
+            .where(
+                Scrobble.played_at
+                > (datetime.datetime.now() - datetime.timedelta(days=days))
+            )
+            .first()
+        )
+
+        stats = {
+            "avg_scrobbles_per_day": round(
+                Scrobble.select()
+                .where(
+                    Scrobble.played_at
+                    > (datetime.datetime.now() - datetime.timedelta(days=days))
+                )
+                .count()
+                / days
+            ),
+            "listening_time_ms": Scrobble.select(fn.SUM(Track.duration_ms))
+            .join(Track)
+            .where(
+                Scrobble.played_at
+                > (datetime.datetime.now() - datetime.timedelta(days=days))
+            )
+            .scalar(),
+            "num_artists": Scrobble.select(fn.DISTINCT(Artist.id))
+            .where(
+                Scrobble.played_at
+                > (datetime.datetime.now() - datetime.timedelta(days=days))
+            )
+            .count(),
+            "num_albums": Scrobble.select(fn.DISTINCT(Album.id))
+            .where(
+                Scrobble.played_at
+                > (datetime.datetime.now() - datetime.timedelta(days=days))
+            )
+            .count(),
+            "num_tracks": Scrobble.select(fn.DISTINCT(Track.id))
+            .where(
+                Scrobble.played_at
+                > (datetime.datetime.now() - datetime.timedelta(days=days))
+            )
+            .count(),
+            "highest_day": {
+                "date": highest_day_stats.day,
+                "play_count": highest_day_stats.play_count,
+            },
+        }
+
+        return stats
+
+
 def init_db_if_not_exists() -> None:
     with database:
         if not database.table_exists("spotifyconfig"):

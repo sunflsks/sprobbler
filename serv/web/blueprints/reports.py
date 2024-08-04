@@ -1,4 +1,5 @@
 import json
+from db import stats_for_day_range
 from flask import Blueprint, abort
 from play_info import albums, artists, track, utils
 
@@ -29,6 +30,7 @@ def reports(report_type):
         ),
         "ten_most_played_albums": albums.ten_most_played_albums_past_days(time_range),
         "ten_most_played_tracks": track.ten_most_played_tracks_past_days(time_range),
+        "stats": stats_for_day_range(time_range),
     }
 
     return json.dumps(report, cls=utils.PlayedItemsJSONEncoder)
