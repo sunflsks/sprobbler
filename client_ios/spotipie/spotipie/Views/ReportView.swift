@@ -35,11 +35,16 @@ struct ReportView: View {
                     StatCell(title: "Num. Albums", value: String(report.stats.num_albums))
                     StatCell(title: "Num. Tracks", value: String(report.stats.num_tracks))
                     
-                    Section("Busiest Day") {
-                        StatCell(title: "Date", value: isoToString(str: report.stats.highest_day.date) ?? "")
+                }
+                
+                Section("Busiest Day") {
+                    if let date = ISO8601DateFormatter().date(from: report.stats.highest_day.date) {
+                        let dateFormatter = DateFormatter() 
+                        StatCell(title: "Date", value: dateToString(date: date, time: false))
                         StatCell(title: "Play Count", value: String(report.stats.highest_day.play_count))
                     }
                 }
+                
                 Section("Most Played Songs") {
                     ForEach(report.ten_most_played_tracks, id: \.id) { song in
                         NavigationLink {

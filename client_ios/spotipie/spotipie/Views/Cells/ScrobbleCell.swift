@@ -29,7 +29,7 @@ struct ScrobbleCell: View {
                     Spacer()
                 }
                 HStack {
-                    Text(dateToString(date: played_at ?? Date.now))
+                    Text(dateToString(date: played_at ?? Date.now, time: true))
                     Spacer().font(.caption2)
                 }
             }
