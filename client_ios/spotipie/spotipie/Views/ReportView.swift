@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Charts
 
 struct StatCell: View {
     @State var title: String
@@ -28,21 +29,41 @@ struct ReportView: View {
         NavigationStack {
             List {
                 Section("Stats") {
-                    let timeInterval = TimeInterval(report.stats.listening_time_ms/1000)
-                    StatCell(title: "Avg. Scrobble/Day", value: String(report.stats.avg_scrobbles_per_day))
-                    StatCell(title: "Listening Time", value: String(format: "%d hr %d min", timeInterval.hour, timeInterval.second))
+                    StatCell(title: "Listening Time", value: String(format: "%d min", report.stats.listening_time_ms / 1000 / 60))
                     StatCell(title: "Num. Artists", value: String(report.stats.num_artists))
                     StatCell(title: "Num. Albums", value: String(report.stats.num_albums))
                     StatCell(title: "Num. Tracks", value: String(report.stats.num_tracks))
                     
                 }
                 
-                Section("Busiest Day") {
-                    if let date = ISO8601DateFormatter().date(from: report.stats.highest_day.date) {
-                        let dateFormatter = DateFormatter() 
-                        StatCell(title: "Date", value: dateToString(date: date, time: false))
-                        StatCell(title: "Play Count", value: String(report.stats.highest_day.play_count))
+                Section {
+                    VStack {
+                        HStack {
+                            Text("Average Scrobbles / Day").font(.title2).fontWeight(.bold)
+                            Spacer()
+                        }
+                        Chart {
+                            let gradient = Gradient(colors: [.accentColor.opacity(0.8), .accentColor.opacity(0.1)])
+                            ForEach(report.stats.averages) { avg in
+                                let avgDate = Date.average(first: avg.start, second: avg.end)
+                                LineMark(x: .value("Date", avgDate),
+                                y: .value("Scrobbles", avg.count))
+                                .interpolationMethod(.catmullRom)
+                                .symbol(.circle)
+
+                                AreaMark(x: .value("Date", avgDate),
+                                y: .value("Scrobbles", avg.count))
+                                .foregroundStyle(gradient)
+                                .interpolationMethod(.catmullRom)
+                            }
+                        }
+                        .padding(.bottom, 20)
                     }
+                }
+                
+                Section("Busiest Day") {
+                    StatCell(title: "Date", value: dateToString(date: report.stats.highest_day.date, time: false))
+                    StatCell(title: "Play Count", value: String(report.stats.highest_day.play_count))
                 }
                 
                 Section("Most Played Songs") {

@@ -35,12 +35,27 @@ struct Report : Decodable, Identifiable {
             let play_count: Int
         }
         
+        struct AverageScrobbles: Decodable, Identifiable {
+            let id = UUID()
+            
+            let start: Date
+            let end: Date
+            let count: Int
+            
+            private enum CodingKeys: String, CodingKey {
+                case start
+                case end
+                case count
+            }
+        }
+        
         let avg_scrobbles_per_day: Int
         let listening_time_ms: Int
         let num_artists: Int
         let num_albums: Int
         let num_tracks: Int
         let highest_day: HighestDayStats
+        let averages: [AverageScrobbles]
     }
 
     private enum CodingKeys: String, CodingKey {

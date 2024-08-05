@@ -65,3 +65,10 @@ extension String {
         return self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
+
+extension Date {
+    static func average(first: Date, second: Date) -> Date {
+        let interval = first.distance(to: second) / 2
+        return first.addingTimeInterval(interval)
+    }
+}
