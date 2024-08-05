@@ -314,15 +314,30 @@ def stats_for_timedelta(
             .join(Track)
             .where(Scrobble.played_at > (starting - timedelta))
             .scalar(),
-            "num_artists": Scrobble.select(fn.DISTINCT(Artist.id))
+            "num_artists": Scrobble.select(
+                fn.COUNT(fn.DISTINCT(Artist.id)).alias("count")
+            )
             .where(Scrobble.played_at > (starting - timedelta))
-            .count(),
-            "num_albums": Scrobble.select(fn.DISTINCT(Album.id))
+            .join(Track)
+            .join(ArtistTrack)
+            .join(Artist)
+            .get()
+            .count,
+            "num_albums": Scrobble.select(
+                fn.COUNT(fn.DISTINCT(Album.id)).alias("count")
+            )
             .where(Scrobble.played_at > (starting - timedelta))
-            .count(),
-            "num_tracks": Scrobble.select(fn.DISTINCT(Track.id))
+            .join(Track, on=(Scrobble.track == Track.id))
+            .join(Album, on=(Track.album == Album.id))
+            .get()
+            .count,
+            "num_tracks": Scrobble.select(
+                fn.COUNT(fn.DISTINCT(Track.id)).alias("count")
+            )
+            .join(Track)
             .where(Scrobble.played_at > (starting - timedelta))
-            .count(),
+            .get()
+            .count,
             "highest_day": {
                 "date": highest_day_stats.day,
                 "play_count": highest_day_stats.play_count,
