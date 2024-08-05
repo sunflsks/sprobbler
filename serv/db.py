@@ -302,6 +302,44 @@ def highest_day_stats(starting, timedelta):
         "play_count": highest_day_stats.play_count,
     }
 
+
+def average_play_stats(start, timedelta):
+    interval = None
+
+    match timedelta.days:
+        case 7:
+            interval = 7
+        case 30:
+            interval = 6
+        case 365:
+            interval = 12
+        case _:
+            interval = 6
+
+    with database:
+        new_timedelta = timedelta / interval
+        avg = []
+        for i in range(0, interval):
+            end = start - new_timedelta
+
+            avg.append(
+                {
+                    "count": round(
+                        (
+                            Scrobble.select(fn.COUNT(Scrobble.id).alias("play_count"))
+                            .where(Scrobble.played_at.between(end, start))
+                            .scalar()
+                        )
+                        / new_timedelta.days
+                    ),
+                    "start": end,  # Switch these two, as it flows better chronologically (start -> end, start is earlier than end)
+                    "end": start,
+                }
+            )
+            start = end
+        return avg
+
+
 def stats_for_timedelta(
     starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
 ):
@@ -346,6 +384,7 @@ def stats_for_timedelta(
             .get()
             .count,
             "highest_day": highest_day_stats(starting, timedelta),
+            "averages": average_play_stats(starting, timedelta),
         }
 
         return stats
