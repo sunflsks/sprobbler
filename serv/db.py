@@ -284,13 +284,7 @@ class Scrobble(BaseModel):
     id = IntegerField(primary_key=True)
 
 
-def stats_for_timedelta(
-    starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
-):
-    if timedelta is None:
-        # seconds since epoch
-        timedelta = datetime.timedelta(seconds=datetime.datetime.now().timestamp())
-
+def highest_day_stats(starting, timedelta):
     with database:
         highest_day_stats = (
             Scrobble.select(
@@ -303,6 +297,19 @@ def stats_for_timedelta(
             .first()
         )
 
+    return {
+        "date": highest_day_stats.day,
+        "play_count": highest_day_stats.play_count,
+    }
+
+def stats_for_timedelta(
+    starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+):
+    if timedelta is None:
+        # seconds since epoch
+        timedelta = datetime.timedelta(seconds=datetime.datetime.now().timestamp())
+
+    with database:
         stats = {
             "avg_scrobbles_per_day": round(
                 Scrobble.select()
@@ -338,10 +345,7 @@ def stats_for_timedelta(
             .where(Scrobble.played_at > (starting - timedelta))
             .get()
             .count,
-            "highest_day": {
-                "date": highest_day_stats.day,
-                "play_count": highest_day_stats.play_count,
-            },
+            "highest_day": highest_day_stats(starting, timedelta),
         }
 
         return stats
