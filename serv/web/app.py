@@ -9,7 +9,7 @@ from db import SpotifyConfig, init_db_if_not_exists
 from config import Config
 from web.blueprints import login, info, reports
 from flask_dance.contrib.spotify import spotify  # type: ignore
-from play_info.utils import PlayedItemsJSONEncoder
+from play_info.utils import PlayedItemsJSONProvider
 from play_info.track import (
     scrobbles_paginated as scrobbles_paginated_internal,
     track_scrobble_info,
@@ -56,6 +56,7 @@ def create_app() -> flask.Flask:
 
     celery_init(app)
 
+    app.json = PlayedItemsJSONProvider(app)
     app.register_blueprint(login.bp, url_prefix="/login")
     app.register_blueprint(info.bp, url_prefix="/info")
     app.register_blueprint(reports.bp, url_prefix="/reports")
@@ -109,7 +110,7 @@ def create_app() -> flask.Flask:
             output["track_count"] = track_info.track_count
             output["listening_time"] = track_info.listening_time
 
-            return json.dumps(output, cls=PlayedItemsJSONEncoder)
+            return flask.jsonify(output)
         except (TypeError, PeeweeException) as e:
             return f"Error: {e}"
 
@@ -128,10 +129,7 @@ def create_app() -> flask.Flask:
             return f"Invalid timestamp/count value: {e}"
 
         try:
-            return json.dumps(
-                scrobbles_paginated_internal(start_timestamp, count),
-                cls=PlayedItemsJSONEncoder,
-            )
+            return flask.jsonify(scrobbles_paginated_internal(start_timestamp, count))
         except (TypeError, PeeweeException) as e:
             return f"Error: {e}"
 

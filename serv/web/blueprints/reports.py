@@ -1,7 +1,7 @@
 import json
 import datetime
 from db import stats_for_timedelta
-from flask import Blueprint, abort
+from flask import Blueprint, abort, jsonify
 from play_info import albums, artists, track, utils
 
 bp = Blueprint("reports", __name__)
@@ -38,4 +38,4 @@ def reports(report_type):
         "stats": stats_for_timedelta(timedelta=timedelta),
     }
 
-    return json.dumps(report, cls=utils.PlayedItemsJSONEncoder)
+    return jsonify(report)

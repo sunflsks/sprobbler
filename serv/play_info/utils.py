@@ -1,18 +1,21 @@
 import decimal
-import json
 import datetime
+from flask.json.provider import DefaultJSONProvider
 from play_info.track import PlayedTrack
 from play_info.albums import PlayedAlbum
 from play_info.artists import PlayedArtist
 
 
-class PlayedItemsJSONEncoder(json.JSONEncoder):
+class PlayedItemsJSONProvider(DefaultJSONProvider):
+    def __init__(self, app):
+        super().__init__(app)
+
     def default(self, o):
         if isinstance(o, decimal.Decimal):
             return float(o)
 
         if isinstance(o, datetime.datetime):
-            return o.isoformat(timespec='seconds')
+            return o.isoformat(timespec="seconds")
 
         if isinstance(o, PlayedAlbum):
             return {
