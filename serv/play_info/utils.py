@@ -12,7 +12,7 @@ class PlayedItemsJSONEncoder(json.JSONEncoder):
             return float(o)
 
         if isinstance(o, datetime.datetime):
-            return o.isoformat()
+            return o.isoformat(timespec='seconds')
 
         if isinstance(o, PlayedAlbum):
             return {
