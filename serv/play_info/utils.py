@@ -15,7 +15,8 @@ class PlayedItemsJSONProvider(DefaultJSONProvider):
             return float(o)
 
         if isinstance(o, datetime.datetime):
-            return o.isoformat(timespec="seconds")
+            # automatically add all timezone info for clients that expect it
+            return o.astimezone().isoformat(timespec="seconds")
 
         if isinstance(o, PlayedAlbum):
             return {

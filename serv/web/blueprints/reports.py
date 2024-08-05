@@ -1,6 +1,6 @@
 import json
 import datetime
-from db import stats_for_timedelta
+from db import stats_for_timedelta, timedelta_for_alltime
 from flask import Blueprint, abort, jsonify
 from play_info import albums, artists, track, utils
 
@@ -20,7 +20,7 @@ def reports(report_type):
         case "yearly":
             timedelta = datetime.timedelta(365)
         case "alltime":
-            timedelta = None
+            timedelta = timedelta_for_alltime()
         case _:
             abort(404)
 

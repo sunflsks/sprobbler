@@ -340,6 +340,15 @@ def average_play_stats(start, timedelta):
         return avg
 
 
+def timedelta_for_alltime():
+    with database:
+        current_datetime = datetime.datetime.now().astimezone()
+        first_scrobble_datetime = (
+            Scrobble.select(fn.MIN(Scrobble.played_at).alias("first")).get().first
+        )
+        return current_datetime - first_scrobble_datetime
+
+
 def stats_for_timedelta(
     starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
 ):
