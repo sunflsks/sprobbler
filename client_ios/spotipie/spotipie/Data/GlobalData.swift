@@ -18,6 +18,8 @@ struct GlobalData: Decodable {
             return nil
         }
         
-        return try JSONDecoder().decode(GlobalData.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(GlobalData.self, from: data)
     }
 }

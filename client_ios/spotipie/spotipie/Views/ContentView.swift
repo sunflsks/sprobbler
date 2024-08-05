@@ -36,7 +36,7 @@ struct ContentView: View {
                         NavigationLink {
                             SongDetailView(song: Song(id: song.id))
                         } label: {
-                            ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
+                            ScrobbleCell(name: song.name, played_at: song.played_at, image_url: song.cover_image_url)
                         }
                     }
                     

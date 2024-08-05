@@ -9,7 +9,7 @@ import Foundation
 
 struct Scrobble: Decodable, Equatable {
     let name: String
-    let played_at: String
+    let played_at: Date
     let id: String
     let cover_image_url: URL?
 }

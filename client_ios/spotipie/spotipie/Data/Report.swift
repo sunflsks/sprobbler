@@ -31,7 +31,7 @@ struct Report : Decodable, Identifiable {
     
     struct Stats: Decodable {
         struct HighestDayStats: Decodable {
-            let date: String
+            let date: Date
             let play_count: Int
         }
         
@@ -67,7 +67,9 @@ struct Report : Decodable, Identifiable {
             return nil
         }
         
-        var retVal = try JSONDecoder().decode(Report.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        var retVal = try decoder.decode(Report.self, from: data)
         retVal.time = time
         return retVal
     }

@@ -23,7 +23,7 @@ struct ScrobblesByTimestampView: View {
     func loadMoreSongs() async {
         isLoading = true
         
-        guard let beginningDate = dateFromISO(str: scrobbles.last?.played_at ?? "") else { return }
+        guard let beginningDate = scrobbles.last?.played_at else { return }
         
         let remoteURLString = "/scrobbles_paginated?from=\(Int(beginningDate.timeIntervalSince1970))&count=\(ADDITIONAL_SONG_COUNT)"
         let remoteURL = URL(string: remoteURLString, relativeTo: url) ?? URL(string: DEFAULT_URL)!
@@ -46,7 +46,7 @@ struct ScrobblesByTimestampView: View {
                     NavigationLink {
                         SongDetailView(song: Song(id: song.id))
                     } label: {
-                        ScrobbleCell(name: song.name, played_at: dateFromISO(str: song.played_at), image_url: song.cover_image_url)
+                        ScrobbleCell(name: song.name, played_at: song.played_at, image_url: song.cover_image_url)
                     }
                     .onAppear {
                         if self.scrobbles.last == song {
