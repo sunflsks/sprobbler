@@ -74,7 +74,7 @@ def predict_genres_for_song(song_path, model, mapping):
 
     idxs = get_idxs_from_prediction(pred, mapping, sample_cnt)
     genres = (
-        list(map(lambda x: mapping[str(x)], idxs)) if idxs is not None else "Unknown"
+        list(map(lambda x: mapping[str(x)], idxs)) if idxs is not None else ["Unknown"]
     )
 
     print(f"Predicted genre for {song_path}: {genres}")
