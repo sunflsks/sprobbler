@@ -3,8 +3,9 @@ import time
 import json
 from venv import logger
 from celery import shared_task
+import logging
 from celery.utils.log import get_task_logger
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 import requests
 from web.blueprints.login import bp
@@ -12,20 +13,18 @@ from utils.scrobble import Scrobble
 from utils.utils import debugprint
 from db import insert_scrobble_into_db, update_predicted_genre_for_track, Track
 
+SECONDS_TO_MS = 1_000
+
 # it seems a song is only registered when fully, 100 percent played; partial plays do not count
 # as a recently played song. however, if fast forwarded to the end it DOES count.
 
 # how many seconds between each call to api
 SPOTIFY_RECENTLY_PLAYED_URL = "/v1/me/player/recently-played"
-SPOTIFY_RECENTLY_PLAYED_LIMIT = 50  # maximum value, who knows maybe the user is crazy
-
-after = time.time_ns() // 1000000  # convert to ms
+SPOTIFY_RECENTLY_PLAYED_LIMIT = 30
 
 
 @shared_task(ignore_result=True)
 def start_scrobbler() -> bool | None:
-    global after
-
     # check if auth token is available
     if not bp.session.authorized:
         debugprint(
@@ -33,12 +32,17 @@ def start_scrobbler() -> bool | None:
         )
         return False
 
-    print("SCROBBLER: session authorized, enabling scrobbler")
+    logger.info("SCROBBLER: session authorized, enabling scrobbler")
 
-    print(f"SCROBBLER: starting @ {datetime.fromtimestamp(after/1000).isoformat()}")
+    cur_datetime = datetime.now(timezone.utc)
 
-    params = {"limit": SPOTIFY_RECENTLY_PLAYED_LIMIT, "after": after}
-    after = time.time_ns() // 1000000  # convert to ms
+    print(f"SCROBBLER: starting @ {cur_datetime.isoformat()}")
+
+    params = {
+        "limit": SPOTIFY_RECENTLY_PLAYED_LIMIT,
+        "before": round(cur_datetime.timestamp() * SECONDS_TO_MS),
+    }
+
     try:
         resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
     except requests.exceptions.RequestException as err:
