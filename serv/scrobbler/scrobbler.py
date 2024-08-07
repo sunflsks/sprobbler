@@ -38,6 +38,7 @@ def start_scrobbler() -> bool | None:
     print(f"SCROBBLER: starting @ {datetime.fromtimestamp(after/1000).isoformat()}")
 
     params = {"limit": SPOTIFY_RECENTLY_PLAYED_LIMIT, "after": after}
+    after = time.time_ns() // 1000000  # convert to ms
     try:
         resp = bp.session.get(SPOTIFY_RECENTLY_PLAYED_URL, params=params)
     except requests.exceptions.RequestException as err:
@@ -61,5 +62,4 @@ def start_scrobbler() -> bool | None:
         )
         insert_scrobble_into_db(scrobble)
 
-    after = time.time_ns() // 1000000  # convert to ms
     return True
