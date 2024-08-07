@@ -93,13 +93,13 @@ class Album(BaseModel):
                 Album.select(
                     Album.name,
                     Album.cover_image_url,
-                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    fn.COUNT(Scrobble.played_at).alias("play_count"),
                     Album.id,
                 )
                 .join(Track, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Album.name, Album.cover_image_url, Album.id)
-                .order_by(fn.COUNT(Scrobble.id).desc())
+                .order_by(fn.COUNT(Scrobble.played_at).desc())
                 .limit(10)
             )
 
@@ -112,14 +112,14 @@ class Album(BaseModel):
                 Album.select(
                     Album.name,
                     Album.cover_image_url,
-                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    fn.COUNT(Scrobble.played_at).alias("play_count"),
                     Album.id,
                 )
                 .join(Track, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Album.name, Album.cover_image_url, Album.id)
                 .where(Scrobble.played_at > (starting - timedelta))
-                .order_by(fn.COUNT(Scrobble.id).desc())
+                .order_by(fn.COUNT(Scrobble.played_at).desc())
                 .limit(10)
             )
 
@@ -134,13 +134,13 @@ class Artist(BaseModel):
             return (
                 Artist.select(
                     Artist.name,
-                    fn.COUNT(Scrobble.id.distinct()).alias("play_count"),
+                    fn.COUNT(Scrobble.played_at.distinct()).alias("play_count"),
                     Artist.id,
                 )
                 .join(ArtistTrack, on=(Artist.id == ArtistTrack.artist))
                 .join(Scrobble, on=(Scrobble.track == ArtistTrack.track))
                 .group_by(Artist.name, Artist.id)
-                .order_by(fn.COUNT(Scrobble.id.distinct()).desc())
+                .order_by(fn.COUNT(Scrobble.played_at.distinct()).desc())
                 .limit(10)
             )
 
@@ -152,14 +152,14 @@ class Artist(BaseModel):
             return (
                 Artist.select(
                     Artist.name,
-                    fn.COUNT(Scrobble.id.distinct()).alias("play_count"),
+                    fn.COUNT(Scrobble.played_at.distinct()).alias("play_count"),
                     Artist.id,
                 )
                 .join(ArtistTrack, on=(Artist.id == ArtistTrack.artist))
                 .join(Scrobble, on=(Scrobble.track == ArtistTrack.track))
                 .where(Scrobble.played_at > (starting - timedelta))
                 .group_by(Artist.name, Artist.id)
-                .order_by(fn.COUNT(Scrobble.id.distinct()).desc())
+                .order_by(fn.COUNT(Scrobble.played_at.distinct()).desc())
                 .limit(10)
             )
 
@@ -221,13 +221,13 @@ class Track(BaseModel):
                 Track.select(
                     Track.name,
                     Album.cover_image_url,
-                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    fn.COUNT(Scrobble.played_at).alias("play_count"),
                     Track.id,
                 )
                 .join(Album, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Track.name, Album.cover_image_url, Track.id)
-                .order_by(fn.COUNT(Scrobble.id).desc())
+                .order_by(fn.COUNT(Scrobble.played_at).desc())
                 .limit(10)
             )
 
@@ -240,14 +240,14 @@ class Track(BaseModel):
                 Track.select(
                     Track.name,
                     Album.cover_image_url,
-                    fn.COUNT(Scrobble.id).alias("play_count"),
+                    fn.COUNT(Scrobble.played_at).alias("play_count"),
                     Track.id,
                 )
                 .join(Album, on=(Track.album == Album.id))
                 .join(Scrobble, on=(Scrobble.track == Track.id))
                 .group_by(Track.name, Album.cover_image_url, Track.id)
                 .where(Scrobble.played_at > (starting - timedelta))
-                .order_by(fn.COUNT(Scrobble.id).desc())
+                .order_by(fn.COUNT(Scrobble.played_at).desc())
                 .limit(10)
             )
 
@@ -280,19 +280,18 @@ class ArtistTrack(BaseModel):
 
 class Scrobble(BaseModel):
     track = ForeignKeyField(Track, to_field="id")
-    played_at = DateTimeField()
-    id = IntegerField(primary_key=True)
+    played_at = DateTimeField(primary_key=True)
 
 
 def highest_day_stats(starting, timedelta):
     with database:
         highest_day_stats = (
             Scrobble.select(
-                fn.COUNT(Scrobble.id).alias("play_count"),
+                fn.COUNT(Scrobble.played_at).alias("play_count"),
                 fn.DATE_TRUNC("day", Scrobble.played_at).alias("day"),
             )
             .group_by(fn.DATE_TRUNC("day", Scrobble.played_at))
-            .order_by(fn.COUNT(Scrobble.id).desc())
+            .order_by(fn.COUNT(Scrobble.played_at).desc())
             .where(Scrobble.played_at > (starting - timedelta))
             .first()
         )
@@ -326,7 +325,9 @@ def average_play_stats(start, timedelta):
                 {
                     "count": round(
                         (
-                            Scrobble.select(fn.COUNT(Scrobble.id).alias("play_count"))
+                            Scrobble.select(
+                                fn.COUNT(Scrobble.played_at).alias("play_count")
+                            )
                             .where(Scrobble.played_at.between(end, start))
                             .scalar()
                         )
@@ -437,7 +438,7 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
 
             Scrobble.insert(
                 track=scrobble.track.id, played_at=scrobble.played_at
-            ).execute()
+            ).on_conflict_ignore().execute()
 
             update_predicted_genre_for_track.delay(scrobble.track.id)
 
