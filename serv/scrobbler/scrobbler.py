@@ -51,10 +51,12 @@ def start_scrobbler() -> bool | None:
 
     if resp.status_code != 200:
         debugprint(f"SCROBBLER: get was not successful: {resp}")
+        print(f"{resp.text}")
         return False
 
     try:
         response_dict = resp.json()
+        logger.info(f"{resp.text}")
     except json.JSONDecodeError as err:
         debugprint(f"SCROBBLER: could not parse json: {err}")
         return False
