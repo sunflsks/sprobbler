@@ -350,6 +350,27 @@ def timedelta_for_alltime():
         return current_datetime - first_scrobble_datetime
 
 
+def genre_stats(
+    starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+):
+    """
+    with database:
+        genre = (
+            fn.jsonb_array_elements_text(Track.predicted_genre).lateral().alias("genre")
+        )
+
+        genres = (
+            Track.select(fn.COUNT(genre.c.genre).alias("count"))
+            .join(genre, JOIN.CROSS)
+            .where(Track.predicted_genre != None)
+            .group_by(genre.c.genre)
+        )
+        print(database.cursor().mogrify(*genres.sql()))
+        print(database.cursor().mogrify(*genre.sql()))
+    """
+    pass
+
+
 def stats_for_timedelta(
     starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
 ):

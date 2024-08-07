@@ -5,7 +5,7 @@ from peewee import PeeweeException
 import decimal
 
 from celery import Celery, Task
-from db import SpotifyConfig, init_db_if_not_exists
+from db import SpotifyConfig, init_db_if_not_exists, genre_stats
 from config import Config
 from web.blueprints import login, info, reports
 from flask_dance.contrib.spotify import spotify  # type: ignore
@@ -103,6 +103,8 @@ def create_app() -> flask.Flask:
     def data():
         track_info = track_scrobble_info()
         output = {}
+
+        genre_stats()
 
         try:
             output["ten_most_recent_scrobbles"] = ten_most_recent_scrobbles()
