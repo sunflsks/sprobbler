@@ -49,6 +49,16 @@ struct Report : Decodable, Identifiable {
             }
         }
         
+        struct GenreStats: Decodable {
+            let genre: String
+            let count: Int
+            
+            private enum CodingKeys: String, CodingKey {
+                case genre
+                case count
+            }
+        }
+        
         let avg_scrobbles_per_day: Int
         let listening_time_ms: Int
         let num_artists: Int
@@ -56,6 +66,7 @@ struct Report : Decodable, Identifiable {
         let num_tracks: Int
         let highest_day: HighestDayStats
         let averages: [AverageScrobbles]
+        let genre_stats: [GenreStats]
     }
 
     private enum CodingKeys: String, CodingKey {

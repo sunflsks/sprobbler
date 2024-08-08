@@ -61,6 +61,34 @@ struct ReportView: View {
                     }
                 }
                 
+                Section(footer: Text("Predicted and presented all in-house :)")) {
+                    VStack {
+                        HStack {
+                                Text("Genres").font(.title2).fontWeight(.bold)
+                                Spacer()
+                            }
+                            Chart {
+                                ForEach(report.stats.genre_stats, id: \.genre) { genre in
+                                    SectorMark(
+                                        angle: .value (
+                                            "Count",
+                                            genre.count
+                                        ),
+                                        innerRadius: .ratio(0.6),
+                                        angularInset: 5
+                                    ).foregroundStyle(
+                                        by: .value(
+                                            "Genre",
+                                            genre.genre
+                                        )
+                                    )
+                                }
+                            }
+                            .padding(.bottom, 20)
+                            .scaledToFit()
+                        }
+                }
+                
                 Section("Busiest Day") {
                     StatCell(title: "Date", value: dateToString(date: report.stats.highest_day.date, time: false))
                     StatCell(title: "Play Count", value: String(report.stats.highest_day.play_count))
