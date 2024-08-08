@@ -32,7 +32,10 @@ struct ScrobblesByTimestampView: View {
         
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { return }
         
-        guard let new_songs = try? JSONDecoder().decode([Scrobble].self, from: data) else { return }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        guard let new_songs = try? decoder.decode([Scrobble].self, from: data) else { return }
         
         isLoading = false
         
