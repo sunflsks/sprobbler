@@ -15,6 +15,7 @@ from peewee import (
     Model,
     DoesNotExist,
     PeeweeException,
+    SQL,
 )
 from playhouse.postgres_ext import *
 from utils.scrobble import Scrobble as ScrobbleRepresentation
@@ -365,7 +366,32 @@ def genre_stats(
             ((starting - timedelta),),
         )
 
-        return {row[0]: row[1] for row in cur}
+        return [{"genre": row[0], "count": row[1]} for row in cur]
+
+
+def listening_stats(
+    starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
+):
+    with database:
+        listening_dictionary = (
+            Scrobble.select(
+                fn.date_part("hour", Scrobble.played_at).alias("hour"),
+                fn.COUNT(fn.date_part("hour", Scrobble.played_at)).alias("count"),
+            )
+            .group_by(SQL("hour"))
+            .where(Scrobble.played_at > (starting - timedelta))
+            .dicts()
+        )
+
+        for i in listening_dictionary:
+            print(i)
+
+        listening_list = [
+            {"hour": int(row["hour"]), "count": row["count"]}
+            for row in listening_dictionary
+        ]
+
+        return listening_list
 
 
 def stats_for_timedelta(
@@ -414,6 +440,7 @@ def stats_for_timedelta(
             "highest_day": highest_day_stats(starting, timedelta),
             "averages": average_play_stats(starting, timedelta),
             "genre_stats": genre_stats(starting, timedelta),
+            "hourly_listening": listening_stats(starting, timedelta),
         }
 
         return stats
