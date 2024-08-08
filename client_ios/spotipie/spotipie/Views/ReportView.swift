@@ -89,6 +89,32 @@ struct ReportView: View {
                         }
                 }
                 
+                Section {
+                    VStack {
+                        HStack {
+                            Text("Total Scrobbles / Hour").font(.title2).fontWeight(.bold).minimumScaleFactor(0.2).lineLimit(1)
+                            Spacer()
+                        }
+                        Chart {
+                            ForEach(report.stats.hourly_listening.sorted(by: <), id: \.key) { (hour, count) in
+                                BarMark(
+                                    x: .value(
+                                        "Hour",
+                                        String(hour)
+                                    ),
+                                    y: .value(
+                                       "Count",
+                                       count
+                                    )
+                                )
+                            }
+                        }
+                        .chartScrollableAxes(.horizontal)
+                        .padding(.bottom, 20)
+                        .scaledToFit()
+                    }
+                }
+
                 Section("Busiest Day") {
                     StatCell(title: "Date", value: dateToString(date: report.stats.highest_day.date, time: false))
                     StatCell(title: "Play Count", value: String(report.stats.highest_day.play_count))

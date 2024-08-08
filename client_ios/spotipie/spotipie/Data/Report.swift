@@ -67,6 +67,7 @@ struct Report : Decodable, Identifiable {
         let highest_day: HighestDayStats
         let averages: [AverageScrobbles]
         let genre_stats: [GenreStats]
+        let hourly_listening: [Int: Int]
     }
 
     private enum CodingKeys: String, CodingKey {
