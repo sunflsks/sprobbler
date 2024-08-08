@@ -20,6 +20,8 @@ class Config:
         PSQL_DB = "psql_db"
         PSQL_USER = "psql_username"
         PSQL_PASS = "psql_password"
+        MODEL_PATH = "model_path"
+        MAPPING_PATH = "mapping_path"
 
     @staticmethod
     def get(key: Keys) -> str | None:

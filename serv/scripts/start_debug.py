@@ -2,7 +2,7 @@
 
 import os, time
 from scrobbler.scrobbler import start_scrobbler
-from config import Config
+from utils.config import Config
 from threading import Thread
 
 print("ONLY FOR DEVELOPMENT USE!!! DANGEROUS ENV VARS SET !!!!")
@@ -15,10 +15,12 @@ def start_flask_server():
     app = create_app()
     app.run(host="0.0.0.0", port=int(Config.get(Config.Keys.PORT)))
 
+
 def start_scrobbler_timed():
     while True:
         start_scrobbler()
         time.sleep(int(Config.get(Config.Keys.SCROBBLE_INTERVAL)))
+
 
 if __name__ == "__main__":
     if not Config.validate():

@@ -1,16 +1,15 @@
-import json
 import flask
 from flask import g
 from peewee import PeeweeException
 import decimal
 
 from celery import Celery, Task
-from db import SpotifyConfig, init_db_if_not_exists, genre_stats
-from config import Config
+from db.db import SpotifyConfig, init_db_if_not_exists
+from utils.config import Config
 from web.blueprints import login, info, reports
 from flask_dance.contrib.spotify import spotify  # type: ignore
-from play_info.utils import PlayedItemsJSONProvider
-from play_info.track import (
+from stats.utils import PlayedItemsJSONProvider
+from stats.track import (
     scrobbles_paginated as scrobbles_paginated_internal,
     track_scrobble_info,
     ten_most_recent_scrobbles,
@@ -46,7 +45,7 @@ def create_app() -> flask.Flask:
                 }
             },
             task_routes={
-                "db.update_predicted_genre_for_track": {"queue": "rnn_queue"},
+                "db.db.update_predicted_genre_for_track": {"queue": "rnn_queue"},
                 "scrobbler.scrobbler.start_scrobbler": {"queue": "scrobbler_queue"},
             },
         ),

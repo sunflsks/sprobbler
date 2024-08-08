@@ -6,11 +6,10 @@ from tensorflow import keras
 import numpy as np
 import librosa
 import json
+from utils.config import Config
 
 N_MFCC = 13
 SAMPLE_LEN = 5  # seconds
-MODEL_PATH = "/home/sudhip/sprobbler/src/serv/rnn/model.keras"
-MAPPING_PATH = "/home/sudhip/sprobbler/src/serv/rnn/mapping.json"
 
 
 # Given a x second MP3 file, load it and split the time series into lower(x/5) 5 second pieces.
@@ -48,9 +47,13 @@ def get_idxs_from_prediction(prediction, mapping, sample_cnt):
     return None
 
 
-def load_model_and_mapping(model_path=MODEL_PATH, mapping_path=MAPPING_PATH):
+def load_model_and_mapping(
+    model_path=Config.get(Config.Keys.MODEL_PATH),
+    mapping_path=Config.get(Config.Keys.MAPPING_PATH),
+):
     print("Loading model...")
 
+    print(f"{model_path}, {mapping_path}")
     model = keras.models.load_model(model_path)
     with open(mapping_path, "r") as file:
         mapping = json.load(file)

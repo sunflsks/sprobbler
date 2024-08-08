@@ -1,6 +1,5 @@
-import db
+import db.db as db
 import datetime
-
 
 class PlayedAlbum:
     def __init__(self, name, play_count, cover_image_url, id):

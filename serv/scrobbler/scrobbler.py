@@ -1,17 +1,14 @@
 from doctest import debug
-import time
 import json
 from venv import logger
 from celery import shared_task
-import logging
-from celery.utils.log import get_task_logger
 from datetime import datetime, timezone, timedelta
 
 import requests
 from web.blueprints.login import bp
-from utils.scrobble import Scrobble
+from db.scrobble import Scrobble
 from utils.utils import debugprint
-from db import insert_scrobble_into_db, update_predicted_genre_for_track, Track
+from db.db import insert_scrobble_into_db
 
 SECONDS_TO_MS = 1_000
 
@@ -56,7 +53,6 @@ def start_scrobbler() -> bool | None:
 
     try:
         response_dict = resp.json()
-        logger.info(f"{resp.text}")
     except json.JSONDecodeError as err:
         debugprint(f"SCROBBLER: could not parse json: {err}")
         return False

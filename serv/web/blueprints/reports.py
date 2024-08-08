@@ -1,8 +1,7 @@
-import json
 import datetime
-from db import stats_for_timedelta, timedelta_for_alltime
+from stats.stats import stats_for_timedelta, timedelta_for_alltime
 from flask import Blueprint, abort, jsonify
-from play_info import albums, artists, track, utils
+from stats import albums, artists, track
 
 bp = Blueprint("reports", __name__)
 

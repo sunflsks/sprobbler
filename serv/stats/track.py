@@ -1,4 +1,4 @@
-import db
+import db.db as db
 import datetime
 from peewee import fn
 

@@ -1,4 +1,4 @@
-import db
+import db.db as db
 import json
 import requests
 from flask import Blueprint

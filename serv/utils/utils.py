@@ -1,6 +1,6 @@
 import os
 from textwrap import wrap
-from config import Config
+from .config import Config
 from threading import Timer
 
 

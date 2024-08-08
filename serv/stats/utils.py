@@ -1,9 +1,9 @@
 import decimal
 import datetime
 from flask.json.provider import DefaultJSONProvider
-from play_info.track import PlayedTrack
-from play_info.albums import PlayedAlbum
-from play_info.artists import PlayedArtist
+from .track import PlayedTrack
+from .albums import PlayedAlbum
+from .artists import PlayedArtist
 
 
 class PlayedItemsJSONProvider(DefaultJSONProvider):

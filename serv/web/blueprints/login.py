@@ -1,8 +1,7 @@
 import os, json
 
-from db import SpotifyConfig
-from config import Config
-from flask import Flask, redirect, url_for
+from db.db import SpotifyConfig
+from utils.config import Config
 
 from flask_dance.consumer.storage.sqla import BaseStorage  # type: ignore
 from flask_dance.contrib.spotify import make_spotify_blueprint, spotify  # type: ignore
