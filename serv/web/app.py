@@ -104,8 +104,6 @@ def create_app() -> flask.Flask:
         track_info = track_scrobble_info()
         output = {}
 
-        genre_stats()
-
         try:
             output["ten_most_recent_scrobbles"] = ten_most_recent_scrobbles()
             output["scrobble_count"] = track_info.scrobble_count

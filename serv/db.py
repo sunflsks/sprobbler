@@ -353,22 +353,19 @@ def timedelta_for_alltime():
 def genre_stats(
     starting=datetime.datetime.now(), timedelta=datetime.timedelta(days=30)
 ):
-    """
     with database:
-        genre = (
-            fn.jsonb_array_elements_text(Track.predicted_genre).lateral().alias("genre")
+        cur = database.execute_sql(
+            """
+            SELECT genre, COUNT(genre) AS count FROM track 
+            CROSS JOIN LATERAL jsonb_array_elements_text(track.predicted_genre) AS genre 
+            JOIN scrobble ON scrobble.track_id = track.id
+            WHERE (track.predicted_genre IS NOT NULL) AND (scrobble.played_at > %s) 
+            GROUP BY genre;
+            """,
+            ((starting - timedelta),),
         )
 
-        genres = (
-            Track.select(fn.COUNT(genre.c.genre).alias("count"))
-            .join(genre, JOIN.CROSS)
-            .where(Track.predicted_genre != None)
-            .group_by(genre.c.genre)
-        )
-        print(database.cursor().mogrify(*genres.sql()))
-        print(database.cursor().mogrify(*genre.sql()))
-    """
-    pass
+        return {row[0]: row[1] for row in cur}
 
 
 def stats_for_timedelta(
@@ -416,6 +413,7 @@ def stats_for_timedelta(
             .count,
             "highest_day": highest_day_stats(starting, timedelta),
             "averages": average_play_stats(starting, timedelta),
+            "genre_stats": genre_stats(starting, timedelta),
         }
 
         return stats
