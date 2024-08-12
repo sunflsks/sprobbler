@@ -16,7 +16,8 @@ struct Song: Decodable {
     var preview_url: URL?
     var explicit: Bool?
     var predicted_genres: [String]?
-    
+    var play_count: Int?
+
     var album: Album?
     
     mutating func load(base_url: URL) async throws {
