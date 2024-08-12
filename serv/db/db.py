@@ -276,6 +276,10 @@ class Scrobble(BaseModel):
     track = ForeignKeyField(Track, to_field="id")
     played_at = DateTimeField(primary_key=True)
 
+    @staticmethod
+    def play_count(track_id):
+        return Scrobble.select().where(Scrobble.track == track_id).count()
+
 
 def init_db_if_not_exists() -> None:
     with database:

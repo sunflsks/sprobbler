@@ -35,7 +35,6 @@ def root():
     return "available options are album, track, artist"
 
 
-# Inject predicted genre from DB
 @bp.route("/track/<string:track_id>")
 def track(track_id):
     with db.database:
@@ -50,9 +49,13 @@ def track(track_id):
     if not isinstance(response, dict):
         return response
 
+    # Inject predicted genre and play count from DB
     response["predicted_genres"] = (
         predicted_genres if predicted_genres is not None else []
     )
+
+    response["play_count"] = db.Scrobble.play_count(track_id.strip())
+
     return response
 
 
