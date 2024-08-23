@@ -373,7 +373,7 @@ class RNNTask(Task):
 
 
 @shared_task(ignore_result=True, bind=True, base=RNNTask)
-def update_predicted_genre_for_track(self, track_id):
+def update_predicted_genre_for_track(self, track_id) -> bool:
     model, mapping = self.model_and_mapping
 
     if Track.get_predicted_genre(track_id) is None:
@@ -400,3 +400,6 @@ def update_predicted_genre_for_track(self, track_id):
             except PeeweeException as e:
                 print(f"Could not update predicted genre for track: {e}")
                 return False
+
+    else:
+        return True

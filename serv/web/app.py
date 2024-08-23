@@ -16,9 +16,10 @@ from stats.track import (
 )
 from scrobbler import scrobbler  # this is needed for celery-beat! don't delete
 import datetime
+from typing import Any
 
 
-def json_type_handler(obj):
+def json_type_handler(obj) -> Any:
     if isinstance(obj, datetime.datetime):
         return obj.isoformat()
     if isinstance(obj, decimal.Decimal):
