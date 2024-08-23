@@ -281,16 +281,48 @@ class Scrobble(BaseModel):
         return Scrobble.select().where(Scrobble.track == track_id).count()
 
 
+class ExtendedHistory(BaseModel):
+    """
+    The point of this class is to archive the ENTIRE extended history imported by the user, in case
+    they want to see/analyze it manually later (or in case we want to add more features to the app that require this data).
+    """
+
+    timestamp = DateTimeField(null=True)
+    username = TextField(null=True)
+    platform = TextField(null=True)
+    ms_played = IntegerField(null=True)
+    conn_country = TextField(null=True)
+    ip_address = TextField(null=True)
+    user_agent = TextField(null=True)
+    track_name = TextField(null=True)
+    artist_name = TextField(null=True)
+    album_name = TextField(null=True)
+    track_uri = TextField(null=True)
+    episode_name = TextField(null=True)
+    episode_show_name = TextField(null=True)
+    episode_uri = TextField(null=True)
+    reason_start = TextField(null=True)
+    reason_end = TextField(null=True)
+    shuffle = BooleanField(null=True)
+    skipped = BooleanField(null=True)
+    offline = BooleanField(null=True)
+    offline_timestamp = DateTimeField(null=True)
+    incognito_mode = BooleanField(null=True)
+
+
 def init_db_if_not_exists() -> None:
     with database:
         if not database.table_exists("spotifyconfig"):
+            # We don't initialize the extended_history table here, as we only generate it if extended data is imported manually by the user.
             print(f"DB not found, initializing as {dbname} with user {username}")
             database.create_tables(
                 [SpotifyConfig, Album, Artist, Track, ArtistTrack, Scrobble]
             )
 
 
-def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
+def insert_scrobble_into_db(
+    scrobble: ScrobbleRepresentation, update_genre: bool = True
+) -> bool:
     with database:
         try:
             Album.insert(
@@ -321,7 +353,8 @@ def insert_scrobble_into_db(scrobble: ScrobbleRepresentation) -> bool:
                 track=scrobble.track.id, played_at=scrobble.played_at
             ).on_conflict_ignore().execute()
 
-            update_predicted_genre_for_track.delay(scrobble.track.id)
+            if update_genre:
+                update_predicted_genre_for_track.delay(scrobble.track.id)
 
             return True
         except PeeweeException as e:

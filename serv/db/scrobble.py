@@ -44,4 +44,6 @@ class Track:
 class Scrobble:
     def __init__(self, entry):
         self.track = Track(entry["track"])
-        self.played_at = datetime.fromisoformat(entry["played_at"])
+        self.played_at = datetime.fromisoformat(entry["played_at"]).replace(
+            microsecond=0
+        )
