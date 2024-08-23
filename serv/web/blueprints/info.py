@@ -1,3 +1,4 @@
+import datetime
 import db.db as db
 import json
 import requests
@@ -13,21 +14,34 @@ err_string = "ERROR: Could not complete request"
 
 
 def get_value_from_spotify(url: str) -> tuple | dict:
+    if datetime.datetime.now() < get_value_from_spotify.retry_after:
+        print(f"Rate limited, retry after: {get_value_from_spotify.retry_after}")
+        return f"Rate limited, retry after: {get_value_from_spotify.retry_after}", 429
+
     try:
         resp = spotify.get(url)
     except requests.exceptions.RequestException as e:
         print(f"{err_string}: {e}")
-        return err_string, 502
+        return f"{err_string}: {e}", 502
 
     if resp.status_code != 200:
+        if resp.status_code == 429:
+            get_value_from_spotify.retry_after = (
+                datetime.datetime.now()
+                + datetime.timedelta(seconds=int(resp.headers["Retry-After"]))
+            )
+            print(f"Rate limited, retry after: {get_value_from_spotify.retry_after}")
         print(f"{err_string}: {resp}")
-        return err_string, 502
+        return f"{err_string}: {resp}", 502
 
     try:
         return resp.json()
     except json.JSONDecodeError as e:
         print(f"{err_string}: {e}")
         return {}
+
+
+get_value_from_spotify.retry_after = datetime.datetime.now()
 
 
 @bp.route("/")
