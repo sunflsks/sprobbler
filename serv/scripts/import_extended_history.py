@@ -7,10 +7,11 @@ import datetime
 import requests
 from utils.config import Config
 from db import db
-from db.scrobble import Scrobble, Track
+from db.scrobble import Scrobble
+from alive_progress import alive_bar
 
 
-def transform_dict(dictionary):
+def transform_dict(dictionary: dict) -> dict:
     return {
         "timestamp": dictionary["ts"],
         "username": dictionary["username"],
@@ -104,30 +105,50 @@ def main():
     db.database.create_tables([db.ExtendedHistory])
 
     # concatenate all the arguments' values into a single JSON
+    data = []
     for arg in sys.argv[1:]:
         with open(arg) as f:
             print(f"Importing {arg}")
 
-            data = [transform_dict(dictionary) for dictionary in json.load(f)]
-            db.ExtendedHistory.insert_many(data).execute()
+            data += [transform_dict(dictionary) for dictionary in json.load(f)]
 
-            for item in data:
-                if is_valid_scrobble(item):
-                    print(
-                        f"Inserting scrobble {item["track_uri"]}@{item["timestamp"]}"
-                    )
+    print("Updating extended history table...")
+    db.ExtendedHistory.insert_many(data).execute()
+    print("Done!")
 
-                    scrobble = None
-                    while scrobble := craft_scrobble(item) is None:
-                        print("Waiting for track info...")
-                        time.sleep(1)
+    # first validate, then chunk the validated data into 50-item chunks to avoid rate limiting
+    validated_data = [item for item in data if is_valid_scrobble(item)]
+    validated_data = [
+        item
+        for item in validated_data
+        if datetime.datetime.fromisoformat(item["timestamp"])
+    ]
+    chunked_data = [
+        validated_data[i : i + 50] for i in range(0, len(validated_data), 50)
+    ]
 
+    with alive_bar(len(validated_data)) as bar:
+        for items in chunked_data:
+            retry_timeout = 2
+            scrobbles = craft_scrobbles(items)
+            while scrobbles is None:
+                print(f"Retrying in {retry_timeout} seconds...")
+                scrobbles = craft_scrobbles(items)
+                time.sleep(retry_timeout)
+                retry_timeout **= 2
+
+            for scrobble in scrobbles:
+                try:
                     db.insert_scrobble_into_db(scrobble, update_genre=False)
+                    bar()
+                except Exception as e:
+                    print(
+                        f"Error inserting scrobble {scrobble.track}@{scrobble.played_at}: {e}"
+                    )
+                    continue
 
-                    # Avoid rate limiting
-                    time.sleep(1.75)
-
-            print(f"Imported {arg}")
+            # Avoid rate limiting
+            time.sleep(1)
 
 
 if __name__ == "__main__":

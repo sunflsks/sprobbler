@@ -73,6 +73,29 @@ def track(track_id):
     return response
 
 
+@bp.route("/tracks/<string:track_ids>")
+def tracks(track_ids):
+    response = get_value_from_spotify(f"/v1/tracks/?ids={track_ids}")
+    if not isinstance(response, dict):
+        return response
+
+    with db.database:
+        try:
+            for track in response["tracks"]:
+                # Inject predicted genre and play count from DB
+                predicted_genres = db.Track.get(
+                    db.Track.id == track["id"]
+                ).predicted_genre
+                track["predicted_genres"] = (
+                    predicted_genres if predicted_genres is not None else []
+                )
+                track["play_count"] = db.Scrobble.play_count(track["id"])
+        except db.DoesNotExist:
+            predicted_genres = None
+
+    return response
+
+
 @bp.route("/album/<string:album_id>")
 def album(album_id):
     return get_value_from_spotify(f"/v1/albums/{album_id}")
