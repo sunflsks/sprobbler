@@ -1,0 +1,5 @@
+supervisor
+tensorflow
+celery
+gunicorn
+flask
