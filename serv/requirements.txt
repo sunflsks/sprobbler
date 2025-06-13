@@ -1,5 +1,9 @@
 supervisor
-tensorflow
 celery
 gunicorn
 flask
+peewee
+flask_dance
+sqlalchemy
+psycopg2
+redis
