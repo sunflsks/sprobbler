@@ -39,31 +39,57 @@ def transform_dict(dictionary):
     }
 
 
-def extract_track_id(track_uri):
+def extract_track_id(track_uri: str) -> str:
     return track_uri.split(":")[-1]
 
 
-def craft_scrobble(dictionary):
-    # we are assuming the scrobble has already been validated as a "proper play"
-    track_id = extract_track_id(dictionary["track_uri"])
+def craft_scrobbles(list_of_items: list) -> list[Scrobble] | None:
+    # we are assuming the scrobbles has already been validated as a "proper play"
+
+    track_ids = ",".join(
+        [extract_track_id(item["track_uri"]) for item in list_of_items]
+    )
 
     try:
-        track_info = requests.get(
-            f"http://localhost:{Config.get(Config.Keys.PORT)}/info/track/{track_id}"
+        track_infos = requests.get(
+            f"http://localhost:{Config.get(Config.Keys.PORT)}/info/tracks/{track_ids}"
         )
-        print(f"Track info: {track_info.text}")
-        return Scrobble(
-            {
-                "track": track_info.json(),
-                "played_at": dictionary["timestamp"],
-            }
-        )
+
+        # track_infos is a dict with "tracks" as a key, and a list of track info as the value
+        # we need to extract the track info from the value
+
+        track_info_and_played_at = []
+        for item in list_of_items:
+            track_id = extract_track_id(item["track_uri"])
+            for track_info in track_infos.json()["tracks"]:
+                if track_info["id"] == track_id:
+                    track_info_and_played_at.append((item, track_info))
+                    break
+
+        scrobbles = []
+        for item, track_info in track_info_and_played_at:
+            try:
+                scrobbles.append(
+                    Scrobble(
+                        {
+                            "track": track_info,
+                            "played_at": item["timestamp"],
+                        }
+                    )
+                )
+            except IndexError as e:
+                # this is a rare error that occurs when the track info is not found; for now, we can skip. TODO - make a good fix
+                print(f"Error: {e}")
+                continue
+
+        return scrobbles
+
     except json.JSONDecodeError as e:
         print(f"Error: {e}")
         return None
 
 
-def is_valid_scrobble(item):
+def is_valid_scrobble(item: dict) -> bool:
     # Ok, this is kinda complicated. I matched both the data collected by this program and the data
     # returned by Spotify, and it seems that the public API i use in this app returns SOME songs
     # whose reasons for ending are classified as "endplay" in the archive i downloaded. Why is this?

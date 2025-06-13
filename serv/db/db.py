@@ -18,7 +18,7 @@ from playhouse.postgres_ext import *
 import datetime
 from .scrobble import Scrobble as ScrobbleRepresentation
 from celery import shared_task, Task
-from rnn.predict import predict_genres_for_song, load_model_and_mapping
+#from rnn.predict import predict_genres_for_song, load_model_and_mapping
 import tempfile
 import requests
 
@@ -368,7 +368,8 @@ class RNNTask(Task):
     @property
     def model_and_mapping(self):
         if self._mappings == None:
-            self._mappings = load_model_and_mapping()
+            # self._mappings = load_model_and_mapping()
+            self._mappings = None
         return self._mappings
 
 
@@ -389,7 +390,7 @@ def update_predicted_genre_for_track(self, track_id) -> bool:
             with open(file_path, "wb") as f:
                 f.write(requests.get(preview_url).content)
 
-            genres = predict_genres_for_song(file_path, model, mapping)
+            genres = 'Test' # predict_genres_for_song(file_path, model, mapping)
 
         with database:
             try:
