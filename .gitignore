@@ -6,6 +6,7 @@ serv/rnn/env
 serv/rnn/env.fish
 serv/rnn/mapping.json
 serv/rnn/model.keras
+serv/env
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
